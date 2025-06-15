@@ -69,6 +69,24 @@ export default function SignUpScreen() {
 				return;
 			}
 
+			// Insert username into profiles table
+			const { data: userData, error: userError } =
+				await supabase.auth.getUser();
+			if (userError || !userData?.user?.id) {
+				Alert.alert('Could not fetch user ID to create profile');
+				return;
+			}
+
+			const { error: profileError } = await supabase.from('profiles').insert({
+				id: userData.user.id,
+				username,
+			});
+
+			if (profileError) {
+				Alert.alert('Profile error', profileError.message);
+				return;
+			}
+
 			// Inform user to verify email before login
 			Alert.alert(
 				'Signup successful',
