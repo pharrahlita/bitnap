@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import {
+	ActivityIndicator,
+	Image,
+	SafeAreaView,
+	StyleSheet,
+	Text,
+	View,
+} from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 export default function Profile() {
@@ -63,7 +70,7 @@ export default function Profile() {
 		: 'Unknown';
 
 	return (
-		<View style={styles.container}>
+		<SafeAreaView style={styles.container}>
 			<Image
 				source={
 					profile.avatar_url
@@ -74,7 +81,7 @@ export default function Profile() {
 			/>
 			<Text style={styles.username}>{profile.username || 'No username'}</Text>
 			<Text style={styles.joinDate}>Joined: {joinDate}</Text>
-		</View>
+		</SafeAreaView>
 	);
 }
 
