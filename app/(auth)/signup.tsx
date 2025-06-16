@@ -69,16 +69,14 @@ export default function SignUpScreen() {
 				return;
 			}
 
-			// Insert username into profiles table
-			const { data: userData, error: userError } =
-				await supabase.auth.getUser();
-			if (userError || !userData?.user?.id) {
+			// Use the user id from the signup response
+			if (!data.user?.id) {
 				Alert.alert('Could not fetch user ID to create profile');
 				return;
 			}
 
 			const { error: profileError } = await supabase.from('profiles').insert({
-				id: userData.user.id,
+				id: data.user.id,
 				username,
 			});
 

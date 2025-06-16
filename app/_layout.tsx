@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import {
 	DarkTheme,
 	DefaultTheme,
@@ -7,11 +8,9 @@ import {
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import 'react-native-reanimated';
 
 export default function RootLayout() {
 	const colorScheme = useColorScheme();
@@ -65,6 +64,20 @@ function LayoutWithAuth() {
 				options={{
 					title: 'Edit Profile',
 					headerBackTitle: 'Profile',
+				}}
+			/>
+			<Stack.Screen
+				name="buddies"
+				options={{
+					title: 'Your Buddies',
+					headerBackTitle: 'Profile',
+				}}
+			/>
+			<Stack.Screen
+				name="otherProfile"
+				options={{
+					title: 'User Profile',
+					headerBackTitle: 'Back',
 				}}
 			/>
 			<Stack.Screen name="+not-found" />

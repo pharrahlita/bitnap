@@ -1,75 +1,48 @@
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Image,
-	RefreshControl,
 	SafeAreaView,
 	ScrollView,
 	StyleSheet,
 	Text,
-	TouchableOpacity,
 	View,
 } from 'react-native';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../lib/supabase';
 
-export default function Profile() {
+export default function OtherProfile() {
+	const params = useLocalSearchParams();
+	const router = useRouter();
 	const [profile, setProfile] = useState<{
 		username: string | null;
 		avatar_url: string | null;
 		created_at: string | null;
 		bio: string | null;
 	} | null>(null);
-	const [buddyCount, setBuddyCount] = useState(0);
 	const [loading, setLoading] = useState(true);
-	const [refreshing, setRefreshing] = useState(false);
-	const router = useRouter();
-
-	const fetchProfile = async () => {
-		setLoading(true);
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-
-		if (!user) {
-			setProfile(null);
-			setLoading(false);
-			return;
-		}
-
-		const { data, error } = await supabase
-			.from('profiles')
-			.select('username, bio, avatar_url, created_at')
-			.eq('id', user.id)
-			.single();
-
-		if (error) {
-			console.error('Error loading profile:', error.message);
-			setProfile(null);
-		} else {
-			setProfile(data);
-		}
-
-		// Fetch buddy count
-		const { count, error: buddyError } = await supabase
-			.from('buddies')
-			.select('*', { count: 'exact', head: true })
-			.or(`user_id.eq.${user.id},buddy_id.eq.${user.id}`)
-			.eq('status', 'accepted');
-		if (!buddyError) setBuddyCount(count || 0);
-
-		setLoading(false);
-		setRefreshing(false);
-	};
 
 	useEffect(() => {
+		const fetchProfile = async () => {
+			if (!params.userId) {
+				setProfile(null);
+				setLoading(false);
+				return;
+			}
+			const { data, error } = await supabase
+				.from('profiles')
+				.select('username, bio, avatar_url, created_at')
+				.eq('id', params.userId)
+				.single();
+			if (error) {
+				setProfile(null);
+			} else {
+				setProfile(data);
+			}
+			setLoading(false);
+		};
 		fetchProfile();
-	}, []);
-
-	const onRefresh = () => {
-		setRefreshing(true);
-		fetchProfile();
-	};
+	}, [params.userId]);
 
 	if (loading) {
 		return (
@@ -82,7 +55,7 @@ export default function Profile() {
 	if (!profile) {
 		return (
 			<View style={styles.center}>
-				<Text>No profile found.</Text>
+				<Text>Profile not found.</Text>
 			</View>
 		);
 	}
@@ -94,10 +67,8 @@ export default function Profile() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView
+				style={styles.scrollContainer}
 				contentContainerStyle={{ alignItems: 'center' }}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}
 			>
 				<Image
 					source={
@@ -110,18 +81,6 @@ export default function Profile() {
 				<Text style={styles.username}>{profile.username || 'No username'}</Text>
 				<Text style={styles.bio}>{profile.bio || ''}</Text>
 				<Text style={styles.joinDate}>Joined: {joinDate}</Text>
-				<TouchableOpacity
-					style={styles.editButton}
-					onPress={() => router.push('/buddies')}
-				>
-					<Text style={styles.editButtonText}>Buddies: {buddyCount || 0}</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.editButton}
-					onPress={() => router.push('/editProfile')}
-				>
-					<Text style={styles.editButtonText}>Edit Profile</Text>
-				</TouchableOpacity>
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -133,6 +92,10 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		paddingTop: 40,
 		backgroundColor: '#1c1c1c',
+	},
+	scrollContainer: {
+		flexGrow: 1,
+		padding: 20,
 	},
 	avatar: {
 		width: 120,
@@ -161,14 +124,16 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	editButton: {
-		marginTop: 24,
-		paddingVertical: 10,
+	backButton: {
+		marginTop: 16,
+		marginBottom: 16,
+		paddingVertical: 8,
 		paddingHorizontal: 20,
 		borderRadius: 8,
 		backgroundColor: '#333',
+		alignSelf: 'flex-start',
 	},
-	editButtonText: {
+	backButtonText: {
 		color: '#fff',
 		fontWeight: '600',
 		fontSize: 16,
