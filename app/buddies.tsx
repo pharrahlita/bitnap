@@ -95,11 +95,19 @@ export default function Buddies() {
 		setBuddies(buddies.filter((b) => b.id !== buddyId));
 	};
 
-	// Collect all user IDs that are already buddies or have a pending request
-	const buddyUserIds = new Set([
-		...buddies.map((b) => (b.user_id === userId ? b.buddy_id : b.user_id)),
+	// Collect all user IDs that are already buddies (accepted)
+	const acceptedBuddyUserIds = new Set([
+		...buddies
+			.filter((b) => b.status === 'accepted')
+			.map((b) => (b.user_id === userId ? b.buddy_id : b.user_id)),
 		userId, // always exclude self
 	]);
+	// Collect all user IDs with pending requests
+	const pendingBuddyUserIds = new Set(
+		buddies
+			.filter((b) => b.status === 'pending')
+			.map((b) => (b.user_id === userId ? b.buddy_id : b.user_id))
+	);
 
 	const handleSearch = async () => {
 		if (!search.trim()) return;
@@ -108,8 +116,10 @@ export default function Buddies() {
 			.from('profiles')
 			.select('id, username, avatar_url')
 			.ilike('username', `%${search.trim()}%`);
-		// Exclude users already buddies or pending
-		const filtered = (data || []).filter((item) => !buddyUserIds.has(item.id));
+		// Exclude users already buddies (accepted)
+		const filtered = (data || []).filter(
+			(item) => !acceptedBuddyUserIds.has(item.id)
+		);
 		setSearchResults(filtered);
 		setAdding(false);
 	};
@@ -162,21 +172,10 @@ export default function Buddies() {
 					<FlatList
 						data={searchResults}
 						keyExtractor={(item) => item.id}
-						renderItem={({ item }) => (
-							<View style={styles.row}>
-								<TouchableOpacity
-									style={{
-										flex: 1,
-										flexDirection: 'row',
-										alignItems: 'center',
-									}}
-									onPress={() =>
-										router.push({
-											pathname: '/otherProfile',
-											params: { userId: item.id },
-										})
-									}
-								>
+						renderItem={({ item }) => {
+							const isPending = pendingBuddyUserIds.has(item.id);
+							return (
+								<View style={styles.row}>
 									{item.avatar_url ? (
 										<Image
 											source={{ uri: item.avatar_url }}
@@ -188,16 +187,20 @@ export default function Buddies() {
 										/>
 									)}
 									<Text style={styles.username}>{item.username}</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={styles.acceptBtn}
-									onPress={() => handleAddBuddy(item.id)}
-									disabled={adding}
-								>
-									<Text style={styles.btnText}>Add</Text>
-								</TouchableOpacity>
-							</View>
-						)}
+									{isPending ? (
+										<Text style={styles.pendingText}>Pending</Text>
+									) : (
+										<TouchableOpacity
+											style={styles.acceptBtn}
+											onPress={() => handleAddBuddy(item.id)}
+											disabled={adding}
+										>
+											<Text style={styles.btnText}>Add</Text>
+										</TouchableOpacity>
+									)}
+								</View>
+							);
+						}}
 					/>
 				</View>
 			)}
@@ -317,4 +320,5 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		alignSelf: 'flex-end',
 	},
+	pendingText: { color: '#ffa500', fontWeight: 'bold', marginLeft: 8 },
 });
