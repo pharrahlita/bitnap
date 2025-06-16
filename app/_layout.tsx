@@ -60,6 +60,13 @@ function LayoutWithAuth() {
 			<Stack.Screen name="(auth)/welcome" options={{ headerShown: false }} />
 			<Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
 			<Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+			<Stack.Screen
+				name="editProfile"
+				options={{
+					title: 'Edit Profile',
+					headerBackTitle: 'Profile',
+				}}
+			/>
 			<Stack.Screen name="+not-found" />
 		</Stack>
 	);

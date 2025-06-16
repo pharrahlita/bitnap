@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
@@ -5,6 +6,7 @@ import {
 	SafeAreaView,
 	StyleSheet,
 	Text,
+	TouchableOpacity,
 	View,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
@@ -14,8 +16,10 @@ export default function Profile() {
 		username: string | null;
 		avatar_url: string | null;
 		created_at: string | null;
+		bio: string | null;
 	} | null>(null);
 	const [loading, setLoading] = useState(true);
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchProfile = async () => {
@@ -32,7 +36,7 @@ export default function Profile() {
 
 			const { data, error } = await supabase
 				.from('profiles')
-				.select('username, avatar_url, created_at')
+				.select('username, bio, avatar_url, created_at')
 				.eq('id', user.id)
 				.single();
 
@@ -80,7 +84,14 @@ export default function Profile() {
 				style={styles.avatar}
 			/>
 			<Text style={styles.username}>{profile.username || 'No username'}</Text>
+			<Text style={styles.bio}>{profile.bio || ''}</Text>
 			<Text style={styles.joinDate}>Joined: {joinDate}</Text>
+			<TouchableOpacity
+				style={styles.editButton}
+				onPress={() => router.push('/editProfile')}
+			>
+				<Text style={styles.editButtonText}>Edit Profile</Text>
+			</TouchableOpacity>
 		</SafeAreaView>
 	);
 }
@@ -97,12 +108,17 @@ const styles = StyleSheet.create({
 		height: 120,
 		borderRadius: 60,
 		marginBottom: 20,
-		backgroundColor: '#444', // fallback bg
+		backgroundColor: '#333',
 	},
 	username: {
 		fontSize: 24,
 		fontWeight: 'bold',
 		color: '#eee',
+		marginBottom: 8,
+	},
+	bio: {
+		fontSize: 18,
+		color: '#ccc',
 		marginBottom: 8,
 	},
 	joinDate: {
@@ -113,5 +129,17 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
+	},
+	editButton: {
+		marginTop: 24,
+		paddingVertical: 10,
+		paddingHorizontal: 20,
+		borderRadius: 8,
+		backgroundColor: '#333',
+	},
+	editButtonText: {
+		color: '#fff',
+		fontWeight: '600',
+		fontSize: 16,
 	},
 });

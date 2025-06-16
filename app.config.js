@@ -12,6 +12,10 @@ export default {
 		newArchEnabled: true,
 		ios: {
 			supportsTablet: true,
+			infoPlist: {
+				NSPhotoLibraryUsageDescription:
+					'Allow Bitnap to access your photos for profile picture uploads.',
+			},
 		},
 		android: {
 			adaptiveIcon: {
