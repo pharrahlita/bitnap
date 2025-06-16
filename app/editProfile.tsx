@@ -131,6 +131,22 @@ export default function EditProfile() {
 
 	return (
 		<SafeAreaView style={styles.container}>
+			<TouchableOpacity
+				style={styles.avatarButton}
+				onPress={pickImage}
+				disabled={loading}
+				activeOpacity={0.7}
+			>
+				<Image
+					source={
+						avatarUrl
+							? { uri: avatarUrl }
+							: require('../assets/images/react-logo.png')
+					}
+					style={styles.avatar}
+				/>
+			</TouchableOpacity>
+			<Text style={styles.avatarHint}>Tap avatar to change</Text>
 			<Text style={styles.label}>Username</Text>
 			<TextInput
 				style={styles.input}
@@ -147,18 +163,6 @@ export default function EditProfile() {
 				onChangeText={setBio}
 				placeholder="Tell us about yourself"
 			/>
-
-			{avatarUrl ? (
-				<Image source={{ uri: avatarUrl }} style={styles.avatar} />
-			) : null}
-
-			<TouchableOpacity
-				style={styles.button}
-				onPress={pickImage}
-				disabled={loading}
-			>
-				<Text style={styles.buttonText}>Choose Avatar</Text>
-			</TouchableOpacity>
 
 			<TouchableOpacity
 				style={styles.button}
@@ -206,5 +210,15 @@ const styles = StyleSheet.create({
 		borderRadius: 50,
 		alignSelf: 'center',
 		marginTop: 16,
+	},
+	avatarButton: {
+		alignSelf: 'center',
+		marginTop: 24,
+		marginBottom: 8,
+	},
+	avatarHint: {
+		color: '#888',
+		textAlign: 'center',
+		marginBottom: 8,
 	},
 });
