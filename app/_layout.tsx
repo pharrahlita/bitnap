@@ -4,12 +4,13 @@ import {
 	DarkTheme,
 	DefaultTheme,
 	ThemeProvider,
+	useNavigation,
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import 'react-native-reanimated';
 
 export default function RootLayout() {
@@ -36,6 +37,7 @@ export default function RootLayout() {
 function LayoutWithAuth() {
 	const { user, loading } = useAuth();
 	const router = useRouter();
+	const navigation = useNavigation();
 
 	useEffect(() => {
 		if (!loading) {
@@ -43,7 +45,7 @@ function LayoutWithAuth() {
 				router.replace('/welcome');
 			}
 		}
-	}, [user, loading]);
+	}, [user, loading, router]);
 
 	if (loading) {
 		return (
@@ -59,6 +61,13 @@ function LayoutWithAuth() {
 			<Stack.Screen name="(auth)/welcome" options={{ headerShown: false }} />
 			<Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
 			<Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+			<Stack.Screen
+				name="journalContents"
+				options={{
+					title: 'Dream Contents',
+					headerBackTitle: 'Back',
+				}}
+			/>
 			<Stack.Screen
 				name="editProfile"
 				options={{
@@ -78,6 +87,18 @@ function LayoutWithAuth() {
 				options={{
 					title: 'User Profile',
 					headerBackTitle: 'Back',
+				}}
+			/>
+			<Stack.Screen
+				name="createJournalEntry"
+				options={{
+					title: 'Create Entry',
+					presentation: 'modal',
+					headerRight: () => (
+						<TouchableOpacity onPress={() => router.replace('/')}>
+							<Text style={{ color: '#1e90ff', fontSize: 16 }}>Close</Text>
+						</TouchableOpacity>
+					),
 				}}
 			/>
 			<Stack.Screen name="+not-found" />

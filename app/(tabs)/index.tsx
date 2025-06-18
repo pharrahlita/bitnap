@@ -1,75 +1,391 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
+import { supabase } from '@/lib/supabase';
+import { RootStackParamList } from '@/types';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { format } from 'date-fns';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+	FlatList,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+	const router = useRouter();
+	const navigation =
+		useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+	const [selectedDate, setSelectedDate] = useState<string | null>(null);
+	const [currentMonth, setCurrentMonth] = useState<string>('');
+	const [refreshing, setRefreshing] = useState(false);
+	const [journals, setJournals] = useState<any[]>([]);
+	const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
+	const flatListRef = useRef<FlatList<any>>(null);
+	const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
+	const flatListDateRef = useRef<FlatList<any>>(null);
+
+	const fetchJournals = async () => {
+		try {
+			const { data, error } = await supabase
+				.from('journals')
+				.select('*')
+				.order('date', { ascending: true });
+
+			if (error) {
+				console.error('Error fetching journals:', error);
+				return;
+			}
+
+			setJournals(data);
+		} catch (err) {
+			console.error('Unexpected error:', err);
+		}
+	};
+
+	useEffect(() => {
+		fetchJournals();
+	}, []);
+
+	const scrollToDate = (date: string) => {
+		const index = journals.findIndex(
+			(journal) => format(new Date(journal.date), 'yyyy-MM-dd') === date
+		);
+
+		if (index !== -1 && flatListRef.current) {
+			try {
+				flatListRef.current.scrollToIndex({ index, animated: true });
+			} catch (error) {
+				console.warn('scrollToIndex failed:', error);
+			}
+		}
+
+		scrollToDateInHorizontalList(date);
+	};
+
+	const scrollToDateInHorizontalList = (date: string) => {
+		const index = weekDates.findIndex((d) => d.formattedDate === date);
+
+		if (index !== -1 && flatListDateRef.current) {
+			try {
+				flatListDateRef.current.scrollToIndex({ index, animated: true });
+			} catch (error) {
+				console.warn('scrollToIndex failed:', error);
+			}
+		}
+	};
+
+	const handleMomentumScrollEnd = ({
+		nativeEvent,
+	}: {
+		nativeEvent: { contentOffset: { x: number } };
+	}) => {
+		const visibleIndex = Math.round(
+			nativeEvent.contentOffset.x / 100 // Adjust based on item width
+		);
+
+		if (visibleIndex >= 0 && visibleIndex < journals.length) {
+			const visibleDate = format(
+				new Date(journals[visibleIndex].date),
+				'yyyy-MM-dd'
+			);
+			setHighlightedDate(visibleDate); // Highlight the date after scrolling ends
+		}
+	};
+
+	const onRefresh = async () => {
+		setRefreshing(true);
+		await fetchJournals();
+		setRefreshing(false);
+	};
+
+	const journalEntries = journals.map((journal) => ({
+		id: journal.id,
+		date: journal.date,
+		title: journal.title,
+		content: journal.content,
+		tags: journal.dream_type ? [journal.dream_type] : [],
+	}));
+
+	const generateDates = () => {
+		const sortedEntries = journalEntries.sort(
+			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+		);
+
+		const uniqueDates = new Set();
+		const dates: {
+			day: string;
+			date: string;
+			month: string;
+			moonPhase: string;
+			formattedDate: string;
+		}[] = [];
+
+		sortedEntries.forEach((entry) => {
+			const entryDate = format(new Date(entry.date), 'yyyy-MM-dd'); // Use full date for uniqueness
+			if (!uniqueDates.has(entryDate)) {
+				uniqueDates.add(entryDate);
+				dates.push({
+					day: format(new Date(entry.date), 'EEE'),
+					date: format(new Date(entry.date), 'dd'),
+					month: format(new Date(entry.date), 'MM'),
+					formattedDate: format(new Date(entry.date), 'yyyy-MM-dd'), // ADD THIS
+					moonPhase: 'moon.full',
+				});
+			}
+		});
+
+		return dates;
+	};
+
+	const weekDates = generateDates();
+
+	const handleViewableItemsChanged = useRef(
+		({ viewableItems }: { viewableItems: any[] }) => {
+			if (viewableItems.length > 0) {
+				const firstVisibleDate = viewableItems[0].item;
+				const monthYear = format(
+					new Date(`2025-${firstVisibleDate.month}-${firstVisibleDate.date}`),
+					'MMMM yyyy'
+				);
+				setCurrentMonth(monthYear);
+			}
+		}
+	);
+
+	useEffect(() => {
+		const todayIndex = weekDates.findIndex(
+			(date) => date.date === format(new Date(), 'dd')
+		);
+		if (todayIndex !== -1 && flatListRef.current) {
+			flatListRef.current.scrollToIndex({
+				index: todayIndex,
+				animated: true,
+			});
+		}
+	}, []);
+
+	const getItemLayout = (data: any, index: number) => ({
+		length: 60, // Assuming each item has a fixed width of 60
+		offset: 60 * index,
+		index,
+	});
+
+	const onViewableItemsChanged = ({
+		viewableItems,
+	}: {
+		viewableItems: { item: any }[];
+	}) => {
+		if (viewableItems.length > 0) {
+			const visibleDate = viewableItems[0].item.date; // Get the date of the first visible item
+			const index = weekDates.findIndex((d) => d.formattedDate === visibleDate);
+			setSelectedDate(visibleDate);
+
+			if (index !== -1 && flatListDateRef.current) {
+				try {
+					flatListDateRef.current.scrollToIndex({ index, animated: true });
+				} catch (error) {
+					console.warn('scrollToIndex failed:', error);
+				}
+			}
+		}
+	};
+
+	return (
+		<SafeAreaView style={styles.container}>
+			{/* Month Header */}
+			<Text style={styles.monthHeader}>{currentMonth}</Text>
+
+			{/* Date Scroller */}
+			<View style={styles.dateScroller}>
+				<View style={{ position: 'relative' }}>
+					<FlatList
+						ref={flatListDateRef}
+						horizontal
+						data={weekDates}
+						keyExtractor={(item, index) => index.toString()}
+						onViewableItemsChanged={handleViewableItemsChanged.current}
+						viewabilityConfig={viewabilityConfig.current}
+						showsHorizontalScrollIndicator={false} // Hides the scroll bar on iOS
+						getItemLayout={getItemLayout} // Ensures scrollToIndex works correctly
+						renderItem={({ item }) => (
+							<TouchableOpacity
+								onPress={() => {
+									scrollToDate(item.formattedDate);
+								}}
+								style={[
+									styles.dateItem,
+									selectedDate === item.formattedDate && styles.selectedDate,
+								]}
+							>
+								<Text
+									style={
+										highlightedDate === item.date
+											? styles.dateText
+											: styles.dateText
+									}
+								>
+									{item.day}
+								</Text>
+								<Text
+									style={
+										highlightedDate === item.date
+											? styles.dateText
+											: styles.dateText
+									}
+								>
+									{item.date}
+								</Text>
+							</TouchableOpacity>
+						)}
+						onMomentumScrollEnd={handleMomentumScrollEnd}
+						style={{ paddingHorizontal: 15 }}
+					/>
+				</View>
+			</View>
+
+			{/* Journal Entries List */}
+			<FlatList
+				ref={flatListRef}
+				data={journals}
+				keyExtractor={(item) => item.id}
+				onViewableItemsChanged={onViewableItemsChanged}
+				viewabilityConfig={viewabilityConfig.current}
+				renderItem={({ item }) => (
+					<TouchableOpacity
+						onPress={() =>
+							router.push({
+								pathname: '/journalContents',
+								params: {
+									title: item.title,
+									content: item.content,
+									tags: item.tags,
+								},
+							})
+						}
+					>
+						<View style={styles.entryItem}>
+							<Text style={styles.entryTitle}>
+								{new Date(item.date).toDateString()}
+							</Text>
+							<Text style={styles.entryTitle}>{item.title}</Text>
+							<Text style={styles.entryContent}>{item.content}</Text>
+						</View>
+					</TouchableOpacity>
+				)}
+				style={styles.entryList}
+				refreshing={refreshing}
+				onRefresh={onRefresh}
+				getItemLayout={(data, index) => ({
+					length: 100, // Approximate height of each item
+					offset: 100 * index, // Offset based on item height
+					index,
+				})}
+			/>
+
+			{/* Add Button */}
+			<TouchableOpacity
+				style={styles.addButton}
+				onPress={() => navigation.navigate('createJournalEntry')}
+			>
+				<Text style={styles.addButtonText}>+</Text>
+			</TouchableOpacity>
+		</SafeAreaView>
+	);
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+	container: {
+		flex: 1,
+		alignItems: 'center',
+		paddingTop: 5,
+		backgroundColor: '#1c1c1c',
+	},
+	monthHeader: {
+		color: '#fff',
+		fontSize: 24,
+		fontWeight: 'bold',
+		marginBottom: 16,
+	},
+	dateScroller: {
+		marginBottom: 16,
+		maxHeight: 80, // Prevents stretching on mobile
+		flexShrink: 1, // Ensures the content doesn't stretch unnecessarily
+		alignItems: 'flex-start', // Aligns content to the start
+		overflow: 'hidden',
+	},
+	dateItem: {
+		marginRight: 4,
+		alignItems: 'center',
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		width: 60,
+	},
+	dateText: {
+		color: '#fff',
+		fontSize: 16,
+	},
+	moonPhase: {
+		fontSize: 24,
+	},
+	entryList: {
+		flex: 1, // Ensures the list takes up remaining space
+		width: '100%',
+		marginBottom: 48,
+	},
+	entryItem: {
+		backgroundColor: '#1e1e1e',
+		padding: 16,
+		marginBottom: 16,
+		borderRadius: 8,
+	},
+	entryTitle: {
+		color: '#fff',
+		fontSize: 18,
+		fontWeight: 'bold',
+	},
+	entryContent: {
+		color: '#aaa',
+		marginTop: 8,
+	},
+	tagsContainer: {
+		flexDirection: 'row',
+		marginTop: 8,
+	},
+	tag: {
+		backgroundColor: '#333',
+		color: '#fff',
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 4,
+		marginRight: 8,
+	},
+	selectedDate: {
+		backgroundColor: Colors.dark.primary,
+		borderRadius: 8,
+	},
+	addButton: {
+		position: 'absolute',
+		bottom: 100,
+		right: 20,
+		width: 60,
+		height: 60,
+		borderRadius: 30,
+		backgroundColor: Colors.dark.primary,
+		justifyContent: 'center',
+		alignItems: 'center',
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.25,
+		shadowRadius: 3.84,
+		elevation: 5,
+	},
+	addButtonText: {
+		color: 'white',
+		fontSize: 24,
+		fontWeight: 'bold',
+	},
 });

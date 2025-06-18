@@ -94,7 +94,7 @@ export default function Profile() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<ScrollView
-				contentContainerStyle={{ alignItems: 'center' }}
+				contentContainerStyle={{ alignItems: 'center', marginTop: 40 }}
 				refreshControl={
 					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
 				}
