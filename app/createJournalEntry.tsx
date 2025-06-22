@@ -31,10 +31,16 @@ export default function CreateJournalEntry() {
 
 	const handleSave = async () => {
 		// Validation for mandatory fields
-		if (!title.trim() || !contents.trim() || !date || !dreamType) {
+		const missingFields = [];
+		if (!title.trim()) missingFields.push('Title');
+		if (!contents.trim()) missingFields.push('Contents');
+		if (!date) missingFields.push('Date');
+		if (!dreamType) missingFields.push('Type');
+
+		if (missingFields.length > 0) {
 			Alert.alert(
 				'Missing Required Fields',
-				'Title, Contents, Date, and Type are required.'
+				`Please fill in the following: ${missingFields.join(', ')}`
 			);
 			return;
 		}
