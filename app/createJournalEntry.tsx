@@ -29,6 +29,12 @@ export default function CreateJournalEntry() {
 
 	const scrollViewRef = useRef<ScrollView>(null);
 
+	// Character limits
+	const TITLE_LIMIT = 50;
+	const CONTENTS_LIMIT = 1000;
+	const FEELINGS_LIMIT = 200;
+	const INTERPRETATION_LIMIT = 200;
+
 	const handleSave = async () => {
 		// Validation for mandatory fields
 		const missingFields = [];
@@ -83,17 +89,30 @@ export default function CreateJournalEntry() {
 					placeholder="Title"
 					placeholderTextColor="#aaa"
 					value={title}
-					onChangeText={setTitle}
+					onChangeText={(text) => setTitle(text.slice(0, TITLE_LIMIT))}
+					maxLength={TITLE_LIMIT}
+					multiline={false}
 				/>
+				<View style={styles.counterContainer}>
+					<Text style={styles.counterText}>
+						{title.length}/{TITLE_LIMIT}
+					</Text>
+				</View>
 
 				<TextInput
 					style={[styles.input, styles.textArea]}
 					placeholder="Contents"
 					placeholderTextColor="#aaa"
 					value={contents}
-					onChangeText={setContents}
+					onChangeText={(text) => setContents(text.slice(0, CONTENTS_LIMIT))}
+					maxLength={CONTENTS_LIMIT}
 					multiline
 				/>
+				<View style={styles.counterContainer}>
+					<Text style={styles.counterText}>
+						{contents.length}/{CONTENTS_LIMIT}
+					</Text>
+				</View>
 
 				<View style={styles.horizontalPickerContainer}>
 					<ScrollView
@@ -149,8 +168,14 @@ export default function CreateJournalEntry() {
 					placeholder="How did the dream make you feel?"
 					placeholderTextColor="#aaa"
 					value={feelings}
-					onChangeText={setFeelings}
+					onChangeText={(text) => setFeelings(text.slice(0, FEELINGS_LIMIT))}
+					maxLength={FEELINGS_LIMIT}
 				/>
+				<View style={styles.counterContainer}>
+					<Text style={styles.counterText}>
+						{feelings.length}/{FEELINGS_LIMIT}
+					</Text>
+				</View>
 
 				{/* Interpretation Input */}
 				<TextInput
@@ -160,8 +185,16 @@ export default function CreateJournalEntry() {
 					placeholder="What do you think it meant?"
 					placeholderTextColor="#aaa"
 					value={interpretation}
-					onChangeText={setInterpretation}
+					onChangeText={(text) =>
+						setInterpretation(text.slice(0, INTERPRETATION_LIMIT))
+					}
+					maxLength={INTERPRETATION_LIMIT}
 				/>
+				<View style={styles.counterContainer}>
+					<Text style={styles.counterText}>
+						{interpretation.length}/{INTERPRETATION_LIMIT}
+					</Text>
+				</View>
 
 				<TouchableOpacity style={styles.button} onPress={handleSave}>
 					<Text style={styles.buttonText}>Save</Text>
@@ -230,5 +263,15 @@ const styles = StyleSheet.create({
 	},
 	datePickerButtonText: {
 		color: '#fff',
+	},
+	counterContainer: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		marginTop: -12,
+		marginBottom: 8,
+	},
+	counterText: {
+		color: '#aaa',
+		fontSize: 12,
 	},
 });
