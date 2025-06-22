@@ -14,6 +14,7 @@ import {
 	View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function HomeScreen() {
 	const router = useRouter();
@@ -143,19 +144,6 @@ export default function HomeScreen() {
 
 	const weekDates = generateDates();
 
-	const handleViewableItemsChanged = useRef(
-		({ viewableItems }: { viewableItems: any[] }) => {
-			if (viewableItems.length > 0) {
-				const firstVisibleDate = viewableItems[0].item;
-				const monthYear = format(
-					new Date(`2025-${firstVisibleDate.month}-${firstVisibleDate.date}`),
-					'MMMM yyyy'
-				);
-				setCurrentMonth(monthYear);
-			}
-		}
-	);
-
 	useEffect(() => {
 		const todayIndex = weekDates.findIndex(
 			(date) => date.date === format(new Date(), 'dd')
@@ -180,9 +168,15 @@ export default function HomeScreen() {
 		viewableItems: { item: any }[];
 	}) => {
 		if (viewableItems.length > 0) {
-			const visibleDate = viewableItems[0].item.date; // Get the date of the first visible item
+			const visibleDate = format(
+				new Date(viewableItems[0].item.date),
+				'yyyy-MM-dd'
+			);
 			const index = weekDates.findIndex((d) => d.formattedDate === visibleDate);
 			setSelectedDate(visibleDate);
+			setCurrentMonth(
+				format(new Date(viewableItems[0].item.date), 'MMMM yyyy')
+			);
 
 			if (index !== -1 && flatListDateRef.current) {
 				try {
@@ -207,7 +201,6 @@ export default function HomeScreen() {
 						horizontal
 						data={weekDates}
 						keyExtractor={(item, index) => index.toString()}
-						onViewableItemsChanged={handleViewableItemsChanged.current}
 						viewabilityConfig={viewabilityConfig.current}
 						showsHorizontalScrollIndicator={false} // Hides the scroll bar on iOS
 						getItemLayout={getItemLayout} // Ensures scrollToIndex works correctly
@@ -221,24 +214,9 @@ export default function HomeScreen() {
 									selectedDate === item.formattedDate && styles.selectedDate,
 								]}
 							>
-								<Text
-									style={
-										highlightedDate === item.date
-											? styles.dateText
-											: styles.dateText
-									}
-								>
-									{item.day}
-								</Text>
-								<Text
-									style={
-										highlightedDate === item.date
-											? styles.dateText
-											: styles.dateText
-									}
-								>
-									{item.date}
-								</Text>
+								<Text style={styles.dateText}>{item.day}</Text>
+								<Icon style={styles.moonPhase} name={'moon-waxing-gibbous'} />
+								<Text style={styles.dateText}>{item.date}</Text>
 							</TouchableOpacity>
 						)}
 						onMomentumScrollEnd={handleMomentumScrollEnd}
@@ -267,12 +245,14 @@ export default function HomeScreen() {
 							})
 						}
 					>
-						<View style={styles.entryItem}>
-							<Text style={styles.entryTitle}>
+						<View style={styles.entryItemOuter}>
+							<Text style={styles.entryDate}>
 								{new Date(item.date).toDateString()}
 							</Text>
-							<Text style={styles.entryTitle}>{item.title}</Text>
-							<Text style={styles.entryContent}>{item.content}</Text>
+							<View style={styles.entryItem}>
+								<Text style={styles.entryTitle}>{item.title}</Text>
+								<Text style={styles.entryContent}>{item.content}</Text>
+							</View>
 						</View>
 					</TouchableOpacity>
 				)}
@@ -323,6 +303,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		paddingVertical: 6,
 		width: 60,
+		justifyContent: 'space-between',
 	},
 	dateText: {
 		color: '#fff',
@@ -330,17 +311,26 @@ const styles = StyleSheet.create({
 	},
 	moonPhase: {
 		fontSize: 24,
+		color: '#fff',
 	},
 	entryList: {
 		flex: 1, // Ensures the list takes up remaining space
 		width: '100%',
 		marginBottom: 48,
 	},
+	entryItemOuter: {
+		marginBottom: 24,
+		marginHorizontal: 16,
+	},
 	entryItem: {
-		backgroundColor: '#1e1e1e',
+		backgroundColor: '#222',
 		padding: 16,
-		marginBottom: 16,
 		borderRadius: 8,
+	},
+	entryDate: {
+		color: '#aaa',
+		marginBottom: 8,
+		textAlign: 'right',
 	},
 	entryTitle: {
 		color: '#fff',
@@ -373,7 +363,7 @@ const styles = StyleSheet.create({
 		right: 20,
 		width: 60,
 		height: 60,
-		borderRadius: 30,
+		borderRadius: 12,
 		backgroundColor: Colors.dark.primary,
 		justifyContent: 'center',
 		alignItems: 'center',
