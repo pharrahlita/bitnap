@@ -290,6 +290,12 @@ export default function HomeScreen() {
 							<View style={styles.entryItem}>
 								<Text style={styles.entryTitle}>{item.title}</Text>
 								<Text style={styles.entryContent}>{item.content}</Text>
+								{/* Tag square at the bottom right */}
+								{item.tags && item.tags.length > 0 && (
+									<View style={styles.tagSquareContainer}>
+										<Text style={styles.tagSquare}>{item.tags}</Text>
+									</View>
+								)}
 							</View>
 						</View>
 					</TouchableOpacity>
@@ -434,5 +440,19 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontSize: 24,
 		fontWeight: 'bold',
+	},
+	tagSquareContainer: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		marginTop: 8,
+	},
+	tagSquare: {
+		borderRadius: 4,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		backgroundColor: '#333',
+		color: '#fff',
+		fontSize: 12,
+		overflow: 'hidden',
 	},
 });
