@@ -21,7 +21,7 @@ export default function CreateJournalEntry() {
 	const navigation = useNavigation();
 	const [title, setTitle] = useState('');
 	const [contents, setContents] = useState('');
-	const [dreamType, setDreamType] = useState('Nightmare');
+	const [dreamType, setDreamType] = useState('Standard');
 	const [date, setDate] = useState(new Date());
 	const [feelings, setFeelings] = useState('');
 	const [interpretation, setInterpretation] = useState('');
