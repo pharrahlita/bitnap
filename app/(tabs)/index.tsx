@@ -10,6 +10,7 @@ import {
 	FlatList,
 	StyleSheet,
 	Text,
+	TextInput,
 	TouchableOpacity,
 	View,
 } from 'react-native';
@@ -25,6 +26,8 @@ export default function HomeScreen() {
 	const [refreshing, setRefreshing] = useState(false);
 	const [journals, setJournals] = useState<any[]>([]);
 	const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
+	const [search, setSearch] = useState('');
+	const [showSearch, setShowSearch] = useState(false);
 	const flatListRef = useRef<FlatList<any>>(null);
 	const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
 	const flatListDateRef = useRef<FlatList<any>>(null);
@@ -188,10 +191,45 @@ export default function HomeScreen() {
 		}
 	};
 
+	// Filter journals based on search
+	const filteredEntries = journalEntries.filter(
+		(entry) =>
+			entry.title.toLowerCase().includes(search.toLowerCase()) ||
+			entry.content.toLowerCase().includes(search.toLowerCase())
+	);
+
 	return (
 		<SafeAreaView style={styles.container}>
-			{/* Month Header */}
-			<Text style={styles.monthHeader}>{currentMonth}</Text>
+			{/* Month Header with Search Icon */}
+			<View style={styles.header}>
+				<Text style={styles.monthHeader}>{currentMonth}</Text>
+				<TouchableOpacity
+					onPress={() => {
+						if (showSearch) setSearch('');
+						setShowSearch((prev) => !prev);
+					}}
+				>
+					<Icon
+						name={showSearch ? 'close' : 'magnify'}
+						size={28}
+						color="#fff"
+					/>
+				</TouchableOpacity>
+			</View>
+
+			{/* Search Bar (conditionally rendered) */}
+			{showSearch && (
+				<View style={styles.searchBarContainer}>
+					<TextInput
+						style={styles.searchBar}
+						placeholder="Search your dreams..."
+						placeholderTextColor="#aaa"
+						value={search}
+						onChangeText={setSearch}
+						autoFocus
+					/>
+				</View>
+			)}
 
 			{/* Date Scroller */}
 			<View style={styles.dateScroller}>
@@ -228,7 +266,7 @@ export default function HomeScreen() {
 			{/* Journal Entries List */}
 			<FlatList
 				ref={flatListRef}
-				data={journals}
+				data={filteredEntries}
 				keyExtractor={(item) => item.id}
 				onViewableItemsChanged={onViewableItemsChanged}
 				viewabilityConfig={viewabilityConfig.current}
@@ -284,11 +322,30 @@ const styles = StyleSheet.create({
 		paddingTop: 5,
 		backgroundColor: '#1c1c1c',
 	},
+	header: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		width: '100%',
+		justifyContent: 'space-between',
+		marginBottom: 16,
+		paddingHorizontal: 16,
+	},
 	monthHeader: {
 		color: '#fff',
 		fontSize: 24,
 		fontWeight: 'bold',
-		marginBottom: 16,
+	},
+	searchBarContainer: {
+		width: '100%',
+		paddingHorizontal: 16,
+	},
+	searchBar: {
+		backgroundColor: '#2e2e2e',
+		color: '#fff',
+		borderRadius: 10,
+		padding: 10,
+		marginBottom: 12,
+		width: '100%',
 	},
 	dateScroller: {
 		marginBottom: 16,
