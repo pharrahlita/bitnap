@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
 import {
+	Alert,
 	Keyboard,
 	ScrollView,
 	StyleSheet,
@@ -29,6 +30,15 @@ export default function CreateJournalEntry() {
 	const scrollViewRef = useRef<ScrollView>(null);
 
 	const handleSave = async () => {
+		// Validation for mandatory fields
+		if (!title.trim() || !contents.trim() || !date || !dreamType) {
+			Alert.alert(
+				'Missing Required Fields',
+				'Title, Contents, Date, and Type are required.'
+			);
+			return;
+		}
+
 		try {
 			const { data: userData, error: userError } =
 				await supabase.auth.getUser();
