@@ -8,7 +8,7 @@ const tintColor = '#fff';
 export const Colors = {
 	text: '#fff',
 	textAlt: '#828282',
-	background: '#151718',
+	background: '#3E3748',
 	title: '#fff',
 	button: '#fff',
 	tint: tintColor,
