@@ -53,18 +53,17 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		marginBottom: 16,
 		width: '75%',
-		alignItems: 'center',
 	},
 	buttonFilled: {
 		backgroundColor: Colors.primary,
 		padding: 14,
 		borderRadius: 8,
 		width: '75%',
-		alignItems: 'center',
 	},
 	buttonText: {
 		color: Colors.button,
 		fontSize: 16,
+		textAlign: 'center',
 		fontFamily: 'PixelifySans_Bold',
 	},
 });

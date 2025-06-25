@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: Colors.button,
+		fontSize: 16,
 		textAlign: 'center',
 		fontFamily: 'PixelifySans_Bold',
 	},
