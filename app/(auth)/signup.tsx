@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
 		fontSize: 36,
 		fontFamily: 'PixelifySans_Bold',
 		color: Colors.title,
-		marginBottom: 40,
+		marginBottom: 24,
 	},
 	input: {
 		backgroundColor: '#fff',
