@@ -122,7 +122,10 @@ export default function LoginScreen() {
 					</TouchableOpacity>
 
 					<TouchableOpacity onPress={() => router.replace('/signup')}>
-						<Text style={styles.linkText}>Don't have an account? Sign up</Text>
+						<Text style={styles.linkText}>
+							Don't have an account?
+							<Text style={{ color: Colors.primary }}> Sign up</Text>
+						</Text>
 					</TouchableOpacity>
 				</View>
 			</ScrollView>
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		backgroundColor: '#fff',
-		color: Colors.text,
+		color: Colors.textAlt,
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
@@ -165,8 +168,9 @@ const styles = StyleSheet.create({
 		fontFamily: 'PixelifySans_Bold',
 	},
 	linkText: {
-		color: Colors.primary,
+		color: Colors.textAlt,
 		textAlign: 'center',
 		marginTop: 16,
+		fontFamily: 'PixelifySans_Regular',
 	},
 });
