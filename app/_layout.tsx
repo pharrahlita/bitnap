@@ -16,6 +16,8 @@ export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	const [loaded] = useFonts({
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+		PixelifySans_Regular: require('../assets/fonts/PixelifySans-Regular.ttf'),
+		PixelifySans_Bold: require('../assets/fonts/PixelifySans-Bold.ttf'),
 	});
 
 	if (!loaded) {
