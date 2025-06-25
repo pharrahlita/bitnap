@@ -3,6 +3,10 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
 	Alert,
+	Image,
+	KeyboardAvoidingView,
+	Platform,
+	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -100,54 +104,74 @@ export default function SignUpScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>Create Account</Text>
+		<KeyboardAvoidingView
+			style={{ flex: 1 }}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+		>
+			<ScrollView
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
+			>
+				<View style={styles.container}>
+					<Image
+						source={require('@/assets/images/bitnap_highres_logo.png')}
+						style={{ width: 200, height: 200, marginBottom: 25 }}
+						resizeMode="contain"
+					/>
 
-			<TextInput
-				placeholder="Username"
-				value={username}
-				onChangeText={setUsername}
-				autoCapitalize="none"
-				style={styles.input}
-			/>
+					<Text style={styles.title}>Create Account</Text>
 
-			<TextInput
-				placeholder="Email"
-				value={email}
-				onChangeText={setEmail}
-				keyboardType="email-address"
-				autoCapitalize="none"
-				style={styles.input}
-			/>
+					<TextInput
+						placeholder="Username"
+						value={username}
+						onChangeText={setUsername}
+						autoCapitalize="none"
+						style={styles.input}
+						placeholderTextColor={Colors.textAlt}
+					/>
 
-			<TextInput
-				placeholder="Password"
-				value={password}
-				onChangeText={setPassword}
-				secureTextEntry
-				textContentType="newPassword"
-				autoComplete="password-new"
-				style={styles.input}
-			/>
+					<TextInput
+						placeholder="Email"
+						value={email}
+						onChangeText={setEmail}
+						keyboardType="email-address"
+						autoCapitalize="none"
+						style={styles.input}
+						placeholderTextColor={Colors.textAlt}
+					/>
 
-			<TextInput
-				placeholder="Confirm Password"
-				value={confirmPassword}
-				onChangeText={setConfirmPassword}
-				secureTextEntry
-				textContentType="newPassword"
-				autoComplete="password-new"
-				style={styles.input}
-			/>
+					<TextInput
+						placeholder="Password"
+						value={password}
+						onChangeText={setPassword}
+						secureTextEntry
+						textContentType="newPassword"
+						autoComplete="password-new"
+						style={styles.input}
+						placeholderTextColor={Colors.textAlt}
+					/>
 
-			<TouchableOpacity style={styles.button} onPress={handleSignUp}>
-				<Text style={styles.buttonText}>Create Account</Text>
-			</TouchableOpacity>
+					<TextInput
+						placeholder="Confirm Password"
+						value={confirmPassword}
+						onChangeText={setConfirmPassword}
+						secureTextEntry
+						textContentType="newPassword"
+						autoComplete="password-new"
+						style={styles.input}
+						placeholderTextColor={Colors.textAlt}
+					/>
 
-			<TouchableOpacity onPress={() => router.replace('/login')}>
-				<Text style={styles.linkText}>Already have an account? Login</Text>
-			</TouchableOpacity>
-		</View>
+					<TouchableOpacity style={styles.button} onPress={handleSignUp}>
+						<Text style={styles.buttonText}>Create Account</Text>
+					</TouchableOpacity>
+
+					<TouchableOpacity onPress={() => router.replace('/login')}>
+						<Text style={styles.linkText}>Already have an account? Login</Text>
+					</TouchableOpacity>
+				</View>
+			</ScrollView>
+		</KeyboardAvoidingView>
 	);
 }
 
@@ -155,35 +179,38 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		justifyContent: 'center',
+		alignItems: 'center',
 		padding: 24,
-		backgroundColor: '#1c1c1c',
+		backgroundColor: '#3E3748',
 	},
 	title: {
-		fontSize: 28,
-		fontWeight: 'bold',
-		color: Colors.dark.text,
-		marginBottom: 20,
-		textAlign: 'center',
+		fontSize: 36,
+		fontFamily: 'PixelifySans_Bold',
+		color: Colors.title,
+		marginBottom: 40,
 	},
 	input: {
-		backgroundColor: '#2e2e2e',
-		color: Colors.dark.text,
+		backgroundColor: '#fff',
+		color: Colors.text,
 		padding: 12,
-		borderRadius: 10,
+		borderRadius: 8,
 		marginBottom: 16,
+		fontFamily: 'PixelifySans_Regular',
+		width: '100%',
 	},
 	button: {
-		backgroundColor: Colors.dark.primary,
+		backgroundColor: Colors.primary,
 		padding: 14,
-		borderRadius: 10,
+		borderRadius: 8,
+		width: '100%',
 	},
 	buttonText: {
-		color: Colors.dark.text,
-		fontWeight: 'bold',
+		color: Colors.button,
 		textAlign: 'center',
+		fontFamily: 'PixelifySans_Bold',
 	},
 	linkText: {
-		color: Colors.dark.primary,
+		color: Colors.primary,
 		textAlign: 'center',
 		marginTop: 16,
 	},

@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		backgroundColor: '#2e2e2e',
-		color: Colors.dark.text,
+		color: Colors.text,
 		padding: 12,
 		borderRadius: 10,
 		marginBottom: 16,
@@ -238,20 +238,20 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 	},
 	selectedPickerItem: {
-		backgroundColor: Colors.dark.primary,
+		backgroundColor: Colors.primary,
 		borderRadius: 10,
 	},
 	pickerItemText: {
 		color: '#fff',
 	},
 	button: {
-		backgroundColor: Colors.dark.primary,
+		backgroundColor: Colors.primary,
 		padding: 14,
 		borderRadius: 10,
 		marginBottom: 16,
 	},
 	buttonText: {
-		color: Colors.dark.text,
+		color: Colors.text,
 		fontWeight: 'bold',
 		textAlign: 'center',
 	},

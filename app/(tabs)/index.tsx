@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
 		marginRight: 8,
 	},
 	selectedDate: {
-		backgroundColor: Colors.dark.primary,
+		backgroundColor: Colors.primary,
 		borderRadius: 8,
 	},
 	addButton: {
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
 		width: 60,
 		height: 60,
 		borderRadius: 12,
-		backgroundColor: Colors.dark.primary,
+		backgroundColor: Colors.primary,
 		justifyContent: 'center',
 		alignItems: 'center',
 		shadowColor: '#000',

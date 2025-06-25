@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
 				style={styles.buttonOutlined}
 				onPress={() => router.push('/login')}
 			>
-				<Text style={[styles.buttonText, { color: Colors.dark.secondary }]}>
+				<Text style={[styles.buttonText, { color: Colors.primary }]}>
 					Sign In
 				</Text>
 			</TouchableOpacity>
@@ -37,40 +37,34 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		padding: 24,
-		paddingTop: 200,
-		paddingBottom: 200,
 		backgroundColor: '#3E3748',
 	},
 	title: {
 		fontSize: 48,
-		fontWeight: 'bold',
 		fontFamily: 'PixelifySans_Bold',
-		color: Colors.dark.text,
+		color: Colors.title,
 		marginBottom: 40,
 	},
 	buttonOutlined: {
 		backgroundColor: 'transparent',
-		borderColor: Colors.dark.secondary,
+		borderColor: Colors.primary,
 		borderWidth: 2,
-		paddingVertical: 12,
-		paddingHorizontal: 24,
+		padding: 14,
 		borderRadius: 8,
-		marginVertical: 10,
+		marginBottom: 16,
 		width: '75%',
 		alignItems: 'center',
 	},
 	buttonFilled: {
-		backgroundColor: Colors.dark.secondary,
-		paddingVertical: 12,
-		paddingHorizontal: 24,
+		backgroundColor: Colors.primary,
+		padding: 14,
 		borderRadius: 8,
-		marginVertical: 10,
 		width: '75%',
 		alignItems: 'center',
 	},
 	buttonText: {
-		color: '#fff',
-		fontWeight: 'bold',
+		color: Colors.button,
 		fontSize: 16,
+		fontFamily: 'PixelifySans_Bold',
 	},
 });
