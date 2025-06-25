@@ -4,7 +4,6 @@ import {
 	DarkTheme,
 	DefaultTheme,
 	ThemeProvider,
-	useNavigation,
 } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter } from 'expo-router';
@@ -37,7 +36,6 @@ export default function RootLayout() {
 function LayoutWithAuth() {
 	const { user, loading } = useAuth();
 	const router = useRouter();
-	const navigation = useNavigation();
 
 	useEffect(() => {
 		if (!loading) {

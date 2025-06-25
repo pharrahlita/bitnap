@@ -6,7 +6,7 @@ export default {
 		slug: 'bitnap',
 		version: '1.0.0',
 		orientation: 'portrait',
-		icon: './assets/images/icon.png',
+		icon: './assets/images/bitnap_highres_logo.png',
 		scheme: 'bitnap',
 		userInterfaceStyle: 'automatic',
 		newArchEnabled: true,
@@ -20,24 +20,24 @@ export default {
 		android: {
 			adaptiveIcon: {
 				foregroundImage: './assets/images/adaptive-icon.png',
-				backgroundColor: '#ffffff',
+				backgroundColor: '#3E3748',
 			},
 			edgeToEdgeEnabled: true,
 		},
 		web: {
 			bundler: 'metro',
 			output: 'static',
-			favicon: './assets/images/favicon.png',
+			favicon: './assets/images/bitnap_highres_logo.png',
 		},
 		plugins: [
 			'expo-router',
 			[
 				'expo-splash-screen',
 				{
-					image: './assets/images/splash-icon.png',
-					imageWidth: 200,
+					image: './assets/images/bitnap_highres_logo.png',
+					imageWidth: 240,
 					resizeMode: 'contain',
-					backgroundColor: '#ffffff',
+					backgroundColor: '#3E3748',
 				},
 			],
 		],
