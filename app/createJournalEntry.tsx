@@ -1,3 +1,4 @@
+import { Collapsible } from '@/components/Collapsible';
 import { Colors } from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { useNavigation } from '@react-navigation/native';
@@ -24,6 +25,8 @@ export default function CreateJournalEntry() {
 	const [date, setDate] = useState(new Date());
 	const [feelings, setFeelings] = useState('');
 	const [interpretation, setInterpretation] = useState('');
+	const [moodBefore, setMoodBefore] = useState('');
+	const [moodAfter, setMoodAfter] = useState('');
 	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 	const scrollViewRef = useRef<ScrollView>(null);
 
@@ -65,6 +68,8 @@ export default function CreateJournalEntry() {
 					date,
 					feelings,
 					interpretation,
+					mood_before: moodBefore,
+					mood_after: moodAfter,
 				},
 			]);
 
@@ -166,40 +171,87 @@ export default function CreateJournalEntry() {
 						/>
 					</View>
 
-					<TextInput
-						style={[styles.input, styles.textArea]}
-						multiline
-						textAlignVertical="top"
-						placeholder="How did the dream make you feel?"
-						placeholderTextColor={Colors.textAlt}
-						value={feelings}
-						onChangeText={(text) => setFeelings(text.slice(0, FEELINGS_LIMIT))}
-						maxLength={FEELINGS_LIMIT}
-					/>
-					<View style={styles.counterContainer}>
-						<Text style={styles.counterText}>
-							{feelings.length}/{FEELINGS_LIMIT}
-						</Text>
-					</View>
+					<Collapsible title="Additional Dream Information">
+						<View style={styles.horizontalPickerContainer}>
+							<Text style={styles.subHeading}>Mood before sleep:</Text>
+							<ScrollView
+								horizontal
+								showsHorizontalScrollIndicator={false}
+								ref={scrollViewRef}
+							>
+								{['😁', '☺️', '😑', '🙁', '😟', '😖'].map((type, index) => (
+									<TouchableOpacity
+										key={type}
+										style={[
+											styles.horizontalPickerItem,
+											moodBefore === type && styles.selectedPickerItem,
+										]}
+										onPress={() => setMoodBefore(type)}
+									>
+										<Text style={styles.pickerItemText}>{type}</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
+						</View>
 
-					{/* Interpretation Input */}
-					<TextInput
-						style={[styles.input, styles.textArea]}
-						multiline
-						textAlignVertical="top"
-						placeholder="What do you think it meant?"
-						placeholderTextColor={Colors.textAlt}
-						value={interpretation}
-						onChangeText={(text) =>
-							setInterpretation(text.slice(0, INTERPRETATION_LIMIT))
-						}
-						maxLength={INTERPRETATION_LIMIT}
-					/>
-					<View style={styles.counterContainer}>
-						<Text style={styles.counterText}>
-							{interpretation.length}/{INTERPRETATION_LIMIT}
-						</Text>
-					</View>
+						<View style={styles.horizontalPickerContainer}>
+							<Text style={styles.subHeading}>Mood after waking:</Text>
+							<ScrollView
+								horizontal
+								showsHorizontalScrollIndicator={false}
+								ref={scrollViewRef}
+							>
+								{['😁', '☺️', '😑', '🙁', '😟', '😖'].map((type, index) => (
+									<TouchableOpacity
+										key={type}
+										style={[
+											styles.horizontalPickerItem,
+											moodAfter === type && styles.selectedPickerItem,
+										]}
+										onPress={() => setMoodAfter(type)}
+									>
+										<Text style={styles.pickerItemText}>{type}</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
+						</View>
+
+						<TextInput
+							style={[styles.input, styles.textArea]}
+							multiline
+							textAlignVertical="top"
+							placeholder="How did the dream make you feel?"
+							placeholderTextColor={Colors.textAlt}
+							value={feelings}
+							onChangeText={(text) =>
+								setFeelings(text.slice(0, FEELINGS_LIMIT))
+							}
+							maxLength={FEELINGS_LIMIT}
+						/>
+						<View style={styles.counterContainer}>
+							<Text style={styles.counterText}>
+								{feelings.length}/{FEELINGS_LIMIT}
+							</Text>
+						</View>
+
+						<TextInput
+							style={[styles.input, styles.textArea]}
+							multiline
+							textAlignVertical="top"
+							placeholder="What do you think it meant?"
+							placeholderTextColor={Colors.textAlt}
+							value={interpretation}
+							onChangeText={(text) =>
+								setInterpretation(text.slice(0, INTERPRETATION_LIMIT))
+							}
+							maxLength={INTERPRETATION_LIMIT}
+						/>
+						<View style={styles.counterContainer}>
+							<Text style={styles.counterText}>
+								{interpretation.length}/{INTERPRETATION_LIMIT}
+							</Text>
+						</View>
+					</Collapsible>
 
 					<TouchableOpacity style={styles.button} onPress={handleSave}>
 						<Text style={styles.buttonText}>Save</Text>
@@ -228,6 +280,11 @@ const styles = StyleSheet.create({
 		color: Colors.primary,
 		fontSize: 18,
 	},
+	subHeading: {
+		margin: 4,
+		color: Colors.textOther,
+		fontFamily: 'PixelifySans',
+	},
 	textArea: {
 		height: 100,
 		textAlignVertical: 'top',
@@ -247,7 +304,8 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	pickerItemText: {
-		color: '#fff',
+		color: Colors.text,
+		fontFamily: 'PixelifySans',
 	},
 	button: {
 		backgroundColor: Colors.primary,
@@ -267,7 +325,8 @@ const styles = StyleSheet.create({
 		padding: 12,
 	},
 	datePickerButtonText: {
-		color: '#fff',
+		color: Colors.text,
+		fontFamily: 'PixelifySans',
 	},
 	counterContainer: {
 		flexDirection: 'row',
