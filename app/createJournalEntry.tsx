@@ -186,7 +186,13 @@ export default function CreateJournalEntry() {
 											styles.horizontalPickerItem,
 											moodBefore === type && styles.selectedPickerItem,
 										]}
-										onPress={() => setMoodBefore(type)}
+										onPress={() => {
+											if (moodBefore === type) {
+												setMoodBefore(''); // Deselect if already selected
+											} else {
+												setMoodBefore(type);
+											}
+										}}
 									>
 										<Text style={styles.pickerItemText}>{type}</Text>
 									</TouchableOpacity>
@@ -208,7 +214,13 @@ export default function CreateJournalEntry() {
 											styles.horizontalPickerItem,
 											moodAfter === type && styles.selectedPickerItem,
 										]}
-										onPress={() => setMoodAfter(type)}
+										onPress={() => {
+											if (moodAfter === type) {
+												setMoodAfter(''); // Deselect if already selected
+											} else {
+												setMoodAfter(type);
+											}
+										}}
 									>
 										<Text style={styles.pickerItemText}>{type}</Text>
 									</TouchableOpacity>
