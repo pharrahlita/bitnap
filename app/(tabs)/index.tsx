@@ -329,8 +329,13 @@ export default function HomeScreen() {
 			<TouchableOpacity
 				style={styles.addButton}
 				onPress={() => navigation.navigate('createJournalEntry')}
+				activeOpacity={0.75}
+				accessibilityLabel="Add Journal Entry"
 			>
-				<Text style={styles.addButtonText}>+</Text>
+				<Image
+					source={require('@/assets/images/icons/edit.png')}
+					style={{ height: 48, width: 48, tintColor: '#fff' }}
+				/>
 			</TouchableOpacity>
 		</SafeAreaView>
 	);
@@ -475,8 +480,8 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		bottom: 100,
 		right: 20,
-		width: 60,
-		height: 60,
+		width: 64,
+		height: 64,
 		borderRadius: 8,
 		backgroundColor: Colors.primary,
 		justifyContent: 'center',
@@ -486,10 +491,5 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
 		elevation: 5,
-	},
-	addButtonText: {
-		color: Colors.button,
-		fontSize: 24,
-		fontWeight: 'bold',
 	},
 });
