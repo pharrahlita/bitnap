@@ -1,15 +1,11 @@
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Image, Platform } from 'react-native';
 
 export default function TabLayout() {
-	const colorScheme = useColorScheme();
-
 	return (
 		<Tabs
 			screenOptions={{
@@ -17,6 +13,7 @@ export default function TabLayout() {
 				headerShown: false,
 				tabBarButton: HapticTab,
 				tabBarBackground: TabBarBackground,
+				tabBarShowLabel: false,
 				tabBarStyle: Platform.select({
 					ios: {
 						// Use a transparent background on iOS to show the blur effect
@@ -30,17 +27,17 @@ export default function TabLayout() {
 				name="index"
 				options={{
 					title: 'Journal',
-					tabBarIcon: ({ color }) => (
-						<IconSymbol size={28} name="book.pages.fill" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="analytics"
-				options={{
-					title: 'Analytics',
-					tabBarIcon: ({ color }) => (
-						<IconSymbol size={28} name="chart.pie.fill" color={color} />
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={require('@/assets/images/icons/journal.png')}
+							style={{
+								width: 36,
+								height: 36,
+								marginTop: 15,
+								tintColor: focused ? '#fff' : undefined, // White when focused
+							}}
+							resizeMode="contain"
+						/>
 					),
 				}}
 			/>
@@ -48,8 +45,17 @@ export default function TabLayout() {
 				name="profile"
 				options={{
 					title: 'Profile',
-					tabBarIcon: ({ color }) => (
-						<IconSymbol size={28} name="person.fill" color={color} />
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={require('@/assets/images/icons/user.png')}
+							style={{
+								width: 36,
+								height: 36,
+								marginTop: 15,
+								tintColor: focused ? '#fff' : undefined, // White when focused
+							}}
+							resizeMode="contain"
+						/>
 					),
 				}}
 			/>
