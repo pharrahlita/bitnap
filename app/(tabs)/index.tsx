@@ -281,18 +281,36 @@ export default function HomeScreen() {
 						}
 					>
 						<View style={styles.entryItemOuter}>
-							<Text style={styles.entryDate}>
-								{new Date(item.date).toDateString()}
-							</Text>
-							<View style={styles.entryItem}>
-								<Text style={styles.entryTitle}>{item.title}</Text>
-								<Text style={styles.entryContent}>{item.content}</Text>
-								{/* Tag square at the bottom right */}
-								{item.tags && item.tags.length > 0 && (
-									<View style={styles.tagContainer}>
-										<Text style={styles.tag}>{item.tags}</Text>
-									</View>
-								)}
+							<View style={styles.entryRow}>
+								{/* Thumbnail */}
+								<Image
+									source={
+										item.thumbnail
+											? { uri: item.thumbnail }
+											: require('@/assets/images/bitnap_highres_logo.png')
+									}
+									style={styles.thumbnail}
+								/>
+								{/* Text */}
+								<View style={styles.entryContentCol}>
+									<Text style={styles.entryTitle}>{item.title}</Text>
+									<Text style={styles.entryContent}>{item.content}</Text>
+								</View>
+							</View>
+							{/* Date and tags on the same row at the bottom */}
+							<View style={styles.entryFooter}>
+								<View style={styles.tagContainer}>
+									{item.tags &&
+										item.tags.length > 0 &&
+										item.tags.map((tag: string, idx: number) => (
+											<Text style={styles.tag} key={idx}>
+												{tag}
+											</Text>
+										))}
+								</View>
+								<Text style={styles.entryDate}>
+									{new Date(item.date).toDateString()}
+								</Text>
 							</View>
 						</View>
 					</TouchableOpacity>
@@ -383,32 +401,48 @@ const styles = StyleSheet.create({
 	entryItemOuter: {
 		marginBottom: 16,
 		marginHorizontal: 16,
-	},
-	entryItem: {
 		backgroundColor: Colors.backgroundAlt,
-		padding: 16,
 		borderRadius: 8,
+		padding: 12,
 	},
-	entryDate: {
-		color: Colors.text,
-		marginBottom: 8,
-		textAlign: 'right',
+	entryDateRow: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
+		marginBottom: 4,
+		marginRight: 16,
+	},
+	entryRow: {
+		flexDirection: 'row',
+		alignItems: 'flex-start',
 	},
 	entryTitle: {
 		color: Colors.primary,
-		fontSize: 18,
+		fontSize: 20,
 		fontWeight: 'bold',
 		fontFamily: 'PixelifySans_Bold',
+		marginBottom: 4,
 	},
 	entryContent: {
 		color: Colors.textOther,
-		marginTop: 8,
 		fontFamily: 'PixelifySans',
+	},
+	thumbnail: {
+		width: 64,
+		height: 64,
+		borderRadius: 8,
+		marginRight: 12,
+		backgroundColor: Colors.background,
+	},
+	entryContentCol: {
+		flex: 1,
+		justifyContent: 'flex-start',
 	},
 	tagContainer: {
 		flexDirection: 'row',
-		justifyContent: 'flex-end',
-		marginTop: 8,
+		flexWrap: 'wrap',
+		alignItems: 'center',
+		gap: 6,
 	},
 	tag: {
 		borderRadius: 4,
@@ -419,6 +453,19 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		overflow: 'hidden',
 		fontFamily: 'PixelifySans',
+		marginRight: 6,
+		marginBottom: 4,
+	},
+	entryFooter: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between', // tags left, date right
+		marginTop: 8,
+	},
+	entryDate: {
+		color: Colors.textOther,
+		fontSize: 12,
+		textAlign: 'right',
 	},
 	selectedDate: {
 		backgroundColor: Colors.primary,
