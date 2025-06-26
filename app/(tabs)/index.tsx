@@ -1,3 +1,5 @@
+import { default as closeIcon } from '@/assets/images/icons/close.png';
+import { default as searchIcon } from '@/assets/images/icons/search.png';
 import { Colors } from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { RootStackParamList } from '@/types';
@@ -8,6 +10,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
 	FlatList,
+	Image,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -15,7 +18,6 @@ import {
 	View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function HomeScreen() {
 	const router = useRouter();
@@ -124,7 +126,6 @@ export default function HomeScreen() {
 			day: string;
 			date: string;
 			month: string;
-			moonPhase: string;
 			formattedDate: string;
 		}[] = [];
 
@@ -136,8 +137,7 @@ export default function HomeScreen() {
 					day: format(new Date(entry.date), 'EEE'),
 					date: format(new Date(entry.date), 'dd'),
 					month: format(new Date(entry.date), 'MM'),
-					formattedDate: format(new Date(entry.date), 'yyyy-MM-dd'), // ADD THIS
-					moonPhase: 'moon.full',
+					formattedDate: format(new Date(entry.date), 'yyyy-MM-dd'),
 				});
 			}
 		});
@@ -209,10 +209,9 @@ export default function HomeScreen() {
 						setShowSearch((prev) => !prev);
 					}}
 				>
-					<Icon
-						name={showSearch ? 'close' : 'magnify'}
-						size={28}
-						color="#fff"
+					<Image
+						source={showSearch ? closeIcon : searchIcon}
+						style={{ width: 36, height: 36, tintColor: '#fff' }}
 					/>
 				</TouchableOpacity>
 			</View>
@@ -233,34 +232,32 @@ export default function HomeScreen() {
 
 			{/* Date Scroller */}
 			<View style={styles.dateScroller}>
-				<View style={{ position: 'relative' }}>
-					<FlatList
-						ref={flatListDateRef}
-						horizontal
-						data={weekDates}
-						keyExtractor={(item, index) => index.toString()}
-						viewabilityConfig={viewabilityConfig.current}
-						showsHorizontalScrollIndicator={false} // Hides the scroll bar on iOS
-						getItemLayout={getItemLayout} // Ensures scrollToIndex works correctly
-						renderItem={({ item }) => (
-							<TouchableOpacity
-								onPress={() => {
-									scrollToDate(item.formattedDate);
-								}}
-								style={[
-									styles.dateItem,
-									selectedDate === item.formattedDate && styles.selectedDate,
-								]}
-							>
-								<Text style={styles.dateText}>{item.day}</Text>
-								<Icon style={styles.moonPhase} name={'moon-waxing-gibbous'} />
-								<Text style={styles.dateText}>{item.date}</Text>
-							</TouchableOpacity>
-						)}
-						onMomentumScrollEnd={handleMomentumScrollEnd}
-						style={{ paddingHorizontal: 15 }}
-					/>
-				</View>
+				<FlatList
+					ref={flatListDateRef}
+					horizontal
+					data={weekDates}
+					keyExtractor={(item, index) => index.toString()}
+					viewabilityConfig={viewabilityConfig.current}
+					showsHorizontalScrollIndicator={false} // Hides the scroll bar on iOS
+					getItemLayout={getItemLayout} // Ensures scrollToIndex works correctly
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							activeOpacity={1}
+							onPress={() => {
+								scrollToDate(item.formattedDate);
+							}}
+							style={[
+								styles.dateItem,
+								selectedDate === item.formattedDate && styles.selectedDate,
+							]}
+						>
+							<Text style={styles.dateText}>{item.day}</Text>
+							<Text style={styles.dateText}>{item.date}</Text>
+						</TouchableOpacity>
+					)}
+					onMomentumScrollEnd={handleMomentumScrollEnd}
+					style={{ paddingHorizontal: 15 }}
+				/>
 			</View>
 
 			{/* Journal Entries List */}
@@ -292,8 +289,8 @@ export default function HomeScreen() {
 								<Text style={styles.entryContent}>{item.content}</Text>
 								{/* Tag square at the bottom right */}
 								{item.tags && item.tags.length > 0 && (
-									<View style={styles.tagSquareContainer}>
-										<Text style={styles.tagSquare}>{item.tags}</Text>
+									<View style={styles.tagContainer}>
+										<Text style={styles.tag}>{item.tags}</Text>
 									</View>
 								)}
 							</View>
@@ -326,7 +323,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		paddingTop: 5,
-		backgroundColor: '#1c1c1c',
+		backgroundColor: Colors.background,
 	},
 	header: {
 		flexDirection: 'row',
@@ -338,83 +335,90 @@ const styles = StyleSheet.create({
 	},
 	monthHeader: {
 		color: '#fff',
-		fontSize: 24,
+		fontSize: 30,
 		fontWeight: 'bold',
+		fontFamily: 'PixelifySans_Bold',
 	},
 	searchBarContainer: {
 		width: '100%',
 		paddingHorizontal: 16,
 	},
 	searchBar: {
-		backgroundColor: '#2e2e2e',
-		color: '#fff',
-		borderRadius: 10,
-		padding: 10,
-		marginBottom: 12,
+		backgroundColor: '#fff',
+		color: Colors.textAlt,
+		padding: 12,
+		borderRadius: 8,
+		marginBottom: 16,
+		fontFamily: 'PixelifySans',
 		width: '100%',
 	},
 	dateScroller: {
 		marginBottom: 16,
-		maxHeight: 80, // Prevents stretching on mobile
-		flexShrink: 1, // Ensures the content doesn't stretch unnecessarily
-		alignItems: 'flex-start', // Aligns content to the start
+		maxHeight: 80,
+		borderRadius: 8,
+		flexShrink: 1,
+		alignItems: 'flex-start',
 		overflow: 'hidden',
+		backgroundColor: Colors.backgroundAlt,
+		marginHorizontal: 16,
+		paddingVertical: 8,
 	},
 	dateItem: {
-		marginRight: 4,
 		alignItems: 'center',
-		paddingHorizontal: 12,
-		paddingVertical: 6,
+		padding: 8,
 		width: 60,
 		justifyContent: 'space-between',
+		marginRight: 8,
 	},
 	dateText: {
-		color: '#fff',
-		fontSize: 16,
-	},
-	moonPhase: {
-		fontSize: 24,
-		color: '#fff',
+		color: Colors.text,
+		fontSize: 18,
+		fontFamily: 'PixelifySans',
 	},
 	entryList: {
-		flex: 1, // Ensures the list takes up remaining space
+		flex: 1,
 		width: '100%',
 		marginBottom: 48,
 	},
 	entryItemOuter: {
-		marginBottom: 24,
+		marginBottom: 16,
 		marginHorizontal: 16,
 	},
 	entryItem: {
-		backgroundColor: '#222',
+		backgroundColor: Colors.backgroundAlt,
 		padding: 16,
 		borderRadius: 8,
 	},
 	entryDate: {
-		color: '#aaa',
+		color: Colors.text,
 		marginBottom: 8,
 		textAlign: 'right',
 	},
 	entryTitle: {
-		color: '#fff',
+		color: Colors.primary,
 		fontSize: 18,
 		fontWeight: 'bold',
+		fontFamily: 'PixelifySans_Bold',
 	},
 	entryContent: {
-		color: '#aaa',
+		color: Colors.textOther,
 		marginTop: 8,
+		fontFamily: 'PixelifySans',
 	},
-	tagsContainer: {
+	tagContainer: {
 		flexDirection: 'row',
+		justifyContent: 'flex-end',
 		marginTop: 8,
 	},
 	tag: {
-		backgroundColor: '#333',
-		color: '#fff',
+		borderRadius: 4,
 		paddingHorizontal: 8,
 		paddingVertical: 4,
-		borderRadius: 4,
-		marginRight: 8,
+		backgroundColor: Colors.primary,
+		color: Colors.text,
+		fontSize: 12,
+		overflow: 'hidden',
+		fontFamily: 'PixelifySans',
 	},
 	selectedDate: {
 		backgroundColor: Colors.primary,
@@ -426,7 +430,7 @@ const styles = StyleSheet.create({
 		right: 20,
 		width: 60,
 		height: 60,
-		borderRadius: 12,
+		borderRadius: 8,
 		backgroundColor: Colors.primary,
 		justifyContent: 'center',
 		alignItems: 'center',
@@ -437,22 +441,8 @@ const styles = StyleSheet.create({
 		elevation: 5,
 	},
 	addButtonText: {
-		color: 'white',
+		color: Colors.button,
 		fontSize: 24,
 		fontWeight: 'bold',
-	},
-	tagSquareContainer: {
-		flexDirection: 'row',
-		justifyContent: 'flex-end',
-		marginTop: 8,
-	},
-	tagSquare: {
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-		backgroundColor: '#333',
-		color: '#fff',
-		fontSize: 12,
-		overflow: 'hidden',
 	},
 });

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
-		fontFamily: 'PixelifySans_Regular',
+		fontFamily: 'PixelifySans',
 		width: '100%',
 	},
 	button: {
@@ -172,6 +172,6 @@ const styles = StyleSheet.create({
 		color: Colors.textAlt,
 		textAlign: 'center',
 		marginTop: 16,
-		fontFamily: 'PixelifySans_Regular',
+		fontFamily: 'PixelifySans',
 	},
 });

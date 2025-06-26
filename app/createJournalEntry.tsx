@@ -4,17 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
 import {
 	Alert,
-	Keyboard,
+	KeyboardAvoidingView,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
-	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
 
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 export default function CreateJournalEntry() {
@@ -26,7 +25,6 @@ export default function CreateJournalEntry() {
 	const [feelings, setFeelings] = useState('');
 	const [interpretation, setInterpretation] = useState('');
 	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
-
 	const scrollViewRef = useRef<ScrollView>(null);
 
 	// Character limits
@@ -82,125 +80,133 @@ export default function CreateJournalEntry() {
 	};
 
 	return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-			<KeyboardAwareScrollView style={styles.container}>
-				<TextInput
-					style={styles.input}
-					placeholder="Title"
-					placeholderTextColor="#aaa"
-					value={title}
-					onChangeText={(text) => setTitle(text.slice(0, TITLE_LIMIT))}
-					maxLength={TITLE_LIMIT}
-					multiline={false}
-				/>
-				<View style={styles.counterContainer}>
-					<Text style={styles.counterText}>
-						{title.length}/{TITLE_LIMIT}
-					</Text>
-				</View>
-
-				<TextInput
-					style={[styles.input, styles.textArea]}
-					placeholder="Contents"
-					placeholderTextColor="#aaa"
-					value={contents}
-					onChangeText={(text) => setContents(text.slice(0, CONTENTS_LIMIT))}
-					maxLength={CONTENTS_LIMIT}
-					multiline
-				/>
-				<View style={styles.counterContainer}>
-					<Text style={styles.counterText}>
-						{contents.length}/{CONTENTS_LIMIT}
-					</Text>
-				</View>
-
-				<View style={styles.horizontalPickerContainer}>
-					<ScrollView
-						horizontal
-						showsHorizontalScrollIndicator={false}
-						ref={scrollViewRef}
-					>
-						{['Standard', 'Nightmare', 'Lucid', 'Daydream', 'Other'].map(
-							(type, index) => (
-								<TouchableOpacity
-									key={type}
-									style={[
-										styles.horizontalPickerItem,
-										dreamType === type && styles.selectedPickerItem,
-									]}
-									onPress={() => {
-										setDreamType(type);
-										scrollViewRef.current?.scrollTo({
-											x: index * 100, // Adjust based on item width
-											animated: true,
-										});
-									}}
-								>
-									<Text style={styles.pickerItemText}>{type}</Text>
-								</TouchableOpacity>
-							)
-						)}
-					</ScrollView>
-				</View>
-
-				<View style={styles.datePickerContainer}>
-					<TouchableOpacity onPress={() => setDatePickerVisible(true)}>
-						<Text style={styles.datePickerButtonText}>
-							{date.toDateString()}
-						</Text>
-					</TouchableOpacity>
-
-					<DateTimePickerModal
-						isVisible={isDatePickerVisible}
-						mode="date"
-						onConfirm={(selectedDate) => {
-							setDatePickerVisible(false);
-							setDate(selectedDate);
-						}}
-						onCancel={() => setDatePickerVisible(false)}
+		<KeyboardAvoidingView
+			style={{ flex: 1 }}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+		>
+			<ScrollView
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
+			>
+				<View style={styles.container}>
+					<TextInput
+						style={[styles.input, styles.inputTitle]}
+						placeholder="Title"
+						placeholderTextColor={Colors.primary}
+						value={title}
+						onChangeText={(text) => setTitle(text.slice(0, TITLE_LIMIT))}
+						maxLength={TITLE_LIMIT}
+						multiline={false}
 					/>
-				</View>
+					<View style={styles.counterContainer}>
+						<Text style={styles.counterText}>
+							{title.length}/{TITLE_LIMIT}
+						</Text>
+					</View>
 
-				<TextInput
-					style={[styles.input, styles.textArea]}
-					multiline
-					textAlignVertical="top"
-					placeholder="How did the dream make you feel?"
-					placeholderTextColor="#aaa"
-					value={feelings}
-					onChangeText={(text) => setFeelings(text.slice(0, FEELINGS_LIMIT))}
-					maxLength={FEELINGS_LIMIT}
-				/>
-				<View style={styles.counterContainer}>
-					<Text style={styles.counterText}>
-						{feelings.length}/{FEELINGS_LIMIT}
-					</Text>
-				</View>
+					<TextInput
+						style={[styles.input, styles.textArea]}
+						placeholder="Contents"
+						placeholderTextColor={Colors.textAlt}
+						value={contents}
+						onChangeText={(text) => setContents(text.slice(0, CONTENTS_LIMIT))}
+						maxLength={CONTENTS_LIMIT}
+						multiline
+					/>
+					<View style={styles.counterContainer}>
+						<Text style={styles.counterText}>
+							{contents.length}/{CONTENTS_LIMIT}
+						</Text>
+					</View>
 
-				{/* Interpretation Input */}
-				<TextInput
-					style={[styles.input, styles.textArea]}
-					multiline
-					textAlignVertical="top"
-					placeholder="What do you think it meant?"
-					placeholderTextColor="#aaa"
-					value={interpretation}
-					onChangeText={(text) =>
-						setInterpretation(text.slice(0, INTERPRETATION_LIMIT))
-					}
-					maxLength={INTERPRETATION_LIMIT}
-				/>
-				<View style={styles.counterContainer}>
-					<Text style={styles.counterText}>
-						{interpretation.length}/{INTERPRETATION_LIMIT}
-					</Text>
-				</View>
+					<View style={styles.horizontalPickerContainer}>
+						<ScrollView
+							horizontal
+							showsHorizontalScrollIndicator={false}
+							ref={scrollViewRef}
+						>
+							{['Standard', 'Nightmare', 'Lucid', 'Daydream', 'Other'].map(
+								(type, index) => (
+									<TouchableOpacity
+										key={type}
+										style={[
+											styles.horizontalPickerItem,
+											dreamType === type && styles.selectedPickerItem,
+										]}
+										onPress={() => {
+											setDreamType(type);
+											scrollViewRef.current?.scrollTo({
+												x: index * 100, // Adjust based on item width
+												animated: true,
+											});
+										}}
+									>
+										<Text style={styles.pickerItemText}>{type}</Text>
+									</TouchableOpacity>
+								)
+							)}
+						</ScrollView>
+					</View>
 
-				<TouchableOpacity style={styles.button} onPress={handleSave}>
-					<Text style={styles.buttonText}>Save</Text>
-				</TouchableOpacity>
-			</KeyboardAwareScrollView>
-		</TouchableWithoutFeedback>
+					<View style={styles.datePickerContainer}>
+						<TouchableOpacity onPress={() => setDatePickerVisible(true)}>
+							<Text style={styles.datePickerButtonText}>
+								{date.toDateString()}
+							</Text>
+						</TouchableOpacity>
+
+						<DateTimePickerModal
+							isVisible={isDatePickerVisible}
+							mode="date"
+							onConfirm={(selectedDate) => {
+								setDatePickerVisible(false);
+								setDate(selectedDate);
+							}}
+							onCancel={() => setDatePickerVisible(false)}
+						/>
+					</View>
+
+					<TextInput
+						style={[styles.input, styles.textArea]}
+						multiline
+						textAlignVertical="top"
+						placeholder="How did the dream make you feel?"
+						placeholderTextColor={Colors.textAlt}
+						value={feelings}
+						onChangeText={(text) => setFeelings(text.slice(0, FEELINGS_LIMIT))}
+						maxLength={FEELINGS_LIMIT}
+					/>
+					<View style={styles.counterContainer}>
+						<Text style={styles.counterText}>
+							{feelings.length}/{FEELINGS_LIMIT}
+						</Text>
+					</View>
+
+					{/* Interpretation Input */}
+					<TextInput
+						style={[styles.input, styles.textArea]}
+						multiline
+						textAlignVertical="top"
+						placeholder="What do you think it meant?"
+						placeholderTextColor={Colors.textAlt}
+						value={interpretation}
+						onChangeText={(text) =>
+							setInterpretation(text.slice(0, INTERPRETATION_LIMIT))
+						}
+						maxLength={INTERPRETATION_LIMIT}
+					/>
+					<View style={styles.counterContainer}>
+						<Text style={styles.counterText}>
+							{interpretation.length}/{INTERPRETATION_LIMIT}
+						</Text>
+					</View>
+
+					<TouchableOpacity style={styles.button} onPress={handleSave}>
+						<Text style={styles.buttonText}>Save</Text>
+					</TouchableOpacity>
+				</View>
+			</ScrollView>
+		</KeyboardAvoidingView>
 	);
 }
 
@@ -208,27 +214,26 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 20,
-		backgroundColor: '#1c1c1c',
-	},
-	title: {
-		color: '#fff',
-		fontSize: 24,
-		fontWeight: 'bold',
-		marginBottom: 16,
+		backgroundColor: Colors.background,
 	},
 	input: {
-		backgroundColor: '#2e2e2e',
-		color: Colors.text,
+		backgroundColor: Colors.backgroundAlt,
+		color: Colors.textOther,
 		padding: 12,
-		borderRadius: 10,
+		borderRadius: 8,
 		marginBottom: 16,
+		fontFamily: 'PixelifySans',
+	},
+	inputTitle: {
+		color: Colors.primary,
+		fontSize: 18,
 	},
 	textArea: {
 		height: 100,
 		textAlignVertical: 'top',
 	},
 	horizontalPickerContainer: {
-		backgroundColor: '#333',
+		backgroundColor: Colors.backgroundAlt,
 		borderRadius: 10,
 		marginBottom: 16,
 		padding: 8,
@@ -256,7 +261,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	datePickerContainer: {
-		backgroundColor: '#2e2e2e',
+		backgroundColor: Colors.backgroundAlt,
 		borderRadius: 10,
 		marginBottom: 16,
 		padding: 12,
@@ -271,7 +276,8 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	counterText: {
-		color: '#aaa',
+		color: Colors.textOther,
 		fontSize: 12,
+		fontFamily: 'PixelifySans',
 	},
 });
