@@ -309,7 +309,7 @@ export default function HomeScreen() {
 										))}
 								</View>
 								<Text style={styles.entryDate}>
-									{new Date(item.date).toDateString()}
+									{format(new Date(item.date), 'MMM dd, yyyy')} {'    >>'}
 								</Text>
 							</View>
 						</View>
@@ -432,7 +432,6 @@ const styles = StyleSheet.create({
 		height: 64,
 		borderRadius: 8,
 		marginRight: 12,
-		backgroundColor: Colors.background,
 	},
 	entryContentCol: {
 		flex: 1,
@@ -466,6 +465,7 @@ const styles = StyleSheet.create({
 		color: Colors.textOther,
 		fontSize: 12,
 		textAlign: 'right',
+		fontFamily: 'PixelifySans',
 	},
 	selectedDate: {
 		backgroundColor: Colors.primary,
