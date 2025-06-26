@@ -31,6 +31,24 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
+				name="home"
+				options={{
+					title: 'Home',
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={require('@/assets/images/icons/star.png')}
+							style={{
+								width: 36,
+								height: 36,
+								marginTop: 25,
+								tintColor: focused ? '#fff' : undefined,
+							}}
+							resizeMode="contain"
+						/>
+					),
+				}}
+			/>
+			<Tabs.Screen
 				name="index"
 				options={{
 					title: 'Journal',
