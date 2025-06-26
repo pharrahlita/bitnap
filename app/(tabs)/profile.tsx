@@ -1,10 +1,10 @@
+import { Colors } from '@/constants/Colors';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Image,
 	RefreshControl,
-	SafeAreaView,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -92,21 +92,24 @@ export default function Profile() {
 		: 'Unknown';
 
 	return (
-		<SafeAreaView style={styles.container}>
-			<ScrollView
-				contentContainerStyle={{ alignItems: 'center', marginTop: 40 }}
-				refreshControl={
-					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-				}
-			>
-				<Image
-					source={
-						profile.avatar_url
-							? { uri: profile.avatar_url }
-							: require('@/assets/images/react-logo.png')
-					}
-					style={styles.avatar}
-				/>
+		<ScrollView
+			contentContainerStyle={{ flexGrow: 1 }}
+			refreshControl={
+				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+			}
+		>
+			<View style={styles.container}>
+				<View style={styles.banner} />
+				<View style={styles.avatarWrapper}>
+					<Image
+						source={
+							profile.avatar_url
+								? { uri: profile.avatar_url }
+								: require('@/assets/images/react-logo.png')
+						}
+						style={styles.avatar}
+					/>
+				</View>
 				<Text style={styles.username}>{profile.username || 'No username'}</Text>
 				<Text style={styles.bio}>{profile.bio || ''}</Text>
 				<Text style={styles.joinDate}>Joined: {joinDate}</Text>
@@ -122,39 +125,54 @@ export default function Profile() {
 				>
 					<Text style={styles.editButtonText}>Edit Profile</Text>
 				</TouchableOpacity>
-			</ScrollView>
-		</SafeAreaView>
+			</View>
+		</ScrollView>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		backgroundColor: Colors.background,
 		alignItems: 'center',
-		paddingTop: 40,
-		backgroundColor: '#1c1c1c',
+	},
+	banner: {
+		width: '100%',
+		height: 160,
+		backgroundColor: Colors.backgroundAlt,
+		marginBottom: 75,
+	},
+	avatarWrapper: {
+		position: 'absolute',
+		top: 100,
+		left: 0,
+		right: 0,
+		alignItems: 'center',
+		zIndex: 2,
 	},
 	avatar: {
 		width: 120,
 		height: 120,
 		borderRadius: 60,
 		marginBottom: 20,
-		backgroundColor: '#333',
+		backgroundColor: Colors.backgroundAlt,
+		borderWidth: 4,
+		borderColor: Colors.background,
 	},
 	username: {
 		fontSize: 24,
 		fontWeight: 'bold',
-		color: '#eee',
+		color: Colors.title,
 		marginBottom: 8,
 	},
 	bio: {
 		fontSize: 18,
-		color: '#ccc',
+		color: Colors.text,
 		marginBottom: 8,
 	},
 	joinDate: {
 		fontSize: 16,
-		color: '#aaa',
+		color: Colors.textOther,
 	},
 	center: {
 		flex: 1,
@@ -166,7 +184,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 		paddingHorizontal: 20,
 		borderRadius: 8,
-		backgroundColor: '#333',
+		backgroundColor: Colors.backgroundAlt,
 	},
 	editButtonText: {
 		color: '#fff',
