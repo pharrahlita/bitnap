@@ -30,6 +30,7 @@ export default function HomeScreen() {
 	const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
 	const [search, setSearch] = useState('');
 	const [showSearch, setShowSearch] = useState(false);
+	const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
 	const flatListRef = useRef<FlatList<any>>(null);
 	const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 });
 	const flatListDateRef = useRef<FlatList<any>>(null);
@@ -200,20 +201,38 @@ export default function HomeScreen() {
 
 	return (
 		<SafeAreaView style={styles.container}>
-			{/* Month Header with Search Icon */}
+			{/* Month Header with Search and Layout Icon */}
 			<View style={styles.header}>
 				<Text style={styles.monthHeader}>{currentMonth}</Text>
-				<TouchableOpacity
-					onPress={() => {
-						if (showSearch) setSearch('');
-						setShowSearch((prev) => !prev);
-					}}
-				>
-					<Image
-						source={showSearch ? closeIcon : searchIcon}
-						style={{ width: 36, height: 36, tintColor: '#fff' }}
-					/>
-				</TouchableOpacity>
+				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+					<TouchableOpacity
+						onPress={() =>
+							setLayoutMode(layoutMode === 'list' ? 'grid' : 'list')
+						}
+						accessibilityLabel="Toggle layout"
+						style={{ marginRight: 12 }}
+					>
+						<Image
+							source={
+								layoutMode === 'list'
+									? require('@/assets/images/icons/grid.png')
+									: require('@/assets/images/icons/analytics.png')
+							}
+							style={{ width: 32, height: 32, tintColor: '#fff' }}
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity
+						onPress={() => {
+							if (showSearch) setSearch('');
+							setShowSearch((prev) => !prev);
+						}}
+					>
+						<Image
+							source={showSearch ? closeIcon : searchIcon}
+							style={{ width: 32, height: 32, tintColor: '#fff' }}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
 
 			{/* Search Bar (conditionally rendered) */}
@@ -260,70 +279,107 @@ export default function HomeScreen() {
 				/>
 			</View>
 
-			{/* Journal Entries List */}
-			<FlatList
-				ref={flatListRef}
-				data={filteredEntries}
-				keyExtractor={(item) => item.id}
-				onViewableItemsChanged={onViewableItemsChanged}
-				viewabilityConfig={viewabilityConfig.current}
-				renderItem={({ item }) => (
-					<TouchableOpacity
-						onPress={() =>
-							router.push({
-								pathname: '/journalContents',
-								params: {
-									title: item.title,
-									content: item.content,
-									tags: item.tags,
-								},
-							})
-						}
-					>
-						<View style={styles.entryItemOuter}>
-							<View style={styles.entryRow}>
-								{/* Thumbnail */}
-								<Image
-									source={
-										item.thumbnail
-											? { uri: item.thumbnail }
-											: require('@/assets/images/bitnap_highres_logo.png')
-									}
-									style={styles.thumbnail}
-								/>
-								{/* Text */}
-								<View style={styles.entryContentCol}>
-									<Text style={styles.entryTitle}>{item.title}</Text>
-									<Text style={styles.entryContent}>{item.content}</Text>
+			{/* Journal Entries List or Grid */}
+			{layoutMode === 'list' ? (
+				<FlatList
+					ref={flatListRef}
+					data={filteredEntries}
+					keyExtractor={(item) => item.id}
+					onViewableItemsChanged={onViewableItemsChanged}
+					viewabilityConfig={viewabilityConfig.current}
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							onPress={() =>
+								router.push({
+									pathname: '/journalContents',
+									params: {
+										title: item.title,
+										content: item.content,
+										tags: item.tags,
+									},
+								})
+							}
+						>
+							<View style={styles.entryItemOuter}>
+								<View style={styles.entryRow}>
+									{/* Thumbnail */}
+									<Image
+										source={
+											item.thumbnail
+												? { uri: item.thumbnail }
+												: require('@/assets/images/bitnap_highres_logo.png')
+										}
+										style={styles.thumbnail}
+									/>
+									{/* Text */}
+									<View style={styles.entryContentCol}>
+										<Text style={styles.entryTitle}>{item.title}</Text>
+										<Text style={styles.entryContent}>{item.content}</Text>
+									</View>
+								</View>
+								{/* Date and tags on the same row at the bottom */}
+								<View style={styles.entryFooter}>
+									<View style={styles.tagContainer}>
+										{item.tags &&
+											item.tags.length > 0 &&
+											item.tags.map((tag: string, idx: number) => (
+												<Text style={styles.tag} key={idx}>
+													{tag}
+												</Text>
+											))}
+									</View>
+									<Text style={styles.entryDate}>
+										{format(new Date(item.date), 'MMM dd, yyyy')} {'    >>'}
+									</Text>
 								</View>
 							</View>
-							{/* Date and tags on the same row at the bottom */}
-							<View style={styles.entryFooter}>
-								<View style={styles.tagContainer}>
-									{item.tags &&
-										item.tags.length > 0 &&
-										item.tags.map((tag: string, idx: number) => (
-											<Text style={styles.tag} key={idx}>
-												{tag}
-											</Text>
-										))}
-								</View>
-								<Text style={styles.entryDate}>
-									{format(new Date(item.date), 'MMM dd, yyyy')} {'    >>'}
-								</Text>
-							</View>
-						</View>
-					</TouchableOpacity>
-				)}
-				style={styles.entryList}
-				refreshing={refreshing}
-				onRefresh={onRefresh}
-				getItemLayout={(data, index) => ({
-					length: 100, // Approximate height of each item
-					offset: 100 * index, // Offset based on item height
-					index,
-				})}
-			/>
+						</TouchableOpacity>
+					)}
+					style={styles.entryList}
+					refreshing={refreshing}
+					onRefresh={onRefresh}
+					getItemLayout={(data, index) => ({
+						length: 100, // Approximate height of each item
+						offset: 100 * index, // Offset based on item height
+						index,
+					})}
+					key={layoutMode}
+				/>
+			) : (
+				<FlatList
+					data={filteredEntries}
+					keyExtractor={(item) => item.id}
+					numColumns={2}
+					renderItem={({ item }) => (
+						<TouchableOpacity
+							onPress={() =>
+								router.push({
+									pathname: '/journalContents',
+									params: {
+										title: item.title,
+										content: item.content,
+										tags: item.tags,
+									},
+								})
+							}
+							style={styles.gridItem}
+						>
+							<Image
+								source={
+									item.thumbnail
+										? { uri: item.thumbnail }
+										: require('@/assets/images/bitnap_highres_logo.png')
+								}
+								style={styles.gridImage}
+								resizeMode="cover"
+							/>
+						</TouchableOpacity>
+					)}
+					style={styles.gridList}
+					contentContainerStyle={{ padding: 8 }}
+					key={layoutMode}
+				/>
+			)}
 
 			{/* Add Button */}
 			<TouchableOpacity
@@ -491,5 +547,25 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
 		elevation: 5,
+	},
+	gridList: {
+		flex: 1,
+		width: '100%',
+		marginBottom: 48,
+	},
+	gridItem: {
+		flex: 1 / 2,
+		aspectRatio: 1,
+		marginHorizontal: 6,
+		marginBottom: 12,
+		borderRadius: 8,
+		overflow: 'hidden',
+		backgroundColor: Colors.backgroundAlt,
+		padding: 8,
+	},
+	gridImage: {
+		width: '100%',
+		height: '100%',
+		borderRadius: 8,
 	},
 });
