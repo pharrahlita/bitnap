@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -27,30 +28,29 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 16,
-		backgroundColor: '#1c1c1c',
+		backgroundColor: Colors.background,
 	},
 	title: {
-		fontSize: 24,
-		fontWeight: 'bold',
-		color: '#fff',
+		fontSize: 30,
+		fontFamily: 'PixelifySans_Bold',
+		color: Colors.title,
 		marginBottom: 16,
 	},
 	content: {
 		fontSize: 16,
-		color: '#aaa',
+		color: Colors.textOther,
 		marginBottom: 16,
 	},
 	tagsContainer: {
 		flexDirection: 'row',
-		flexWrap: 'wrap',
+		justifyContent: 'flex-end',
+		marginTop: 8,
 	},
 	tag: {
-		backgroundColor: '#333',
-		color: '#fff',
+		borderRadius: 4,
 		paddingHorizontal: 8,
 		paddingVertical: 4,
-		borderRadius: 4,
-		marginRight: 8,
-		marginBottom: 8,
+		backgroundColor: Colors.primary,
+		color: Colors.text,
 	},
 });

@@ -67,6 +67,21 @@ function LayoutWithAuth() {
 				options={{
 					title: 'Dream Contents',
 					headerBackTitle: 'Back',
+					headerShown: true,
+					headerTitleStyle: {
+						fontFamily: 'PixelifySans_Bold',
+						color: Colors.title,
+						fontSize: 20,
+					},
+					headerTintColor: Colors.primary,
+					headerBackground: () => (
+						<View
+							style={{
+								backgroundColor: Colors.backgroundAlt,
+								flex: 1,
+							}}
+						/>
+					),
 				}}
 			/>
 			<Stack.Screen
