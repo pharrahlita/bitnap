@@ -1,9 +1,8 @@
 import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Image, Platform } from 'react-native';
+import { Image, Platform, View } from 'react-native';
 
 export default function TabLayout() {
 	return (
@@ -12,12 +11,20 @@ export default function TabLayout() {
 				tabBarActiveTintColor: Colors.tint,
 				headerShown: false,
 				tabBarButton: HapticTab,
-				tabBarBackground: TabBarBackground,
+				tabBarBackground: () => (
+					<View
+						style={{
+							backgroundColor: Colors.backgroundAlt,
+							flex: 1,
+						}}
+					/>
+				),
 				tabBarShowLabel: false,
 				tabBarStyle: Platform.select({
 					ios: {
 						// Use a transparent background on iOS to show the blur effect
 						position: 'absolute',
+						borderTopColor: 'transparent',
 					},
 					default: {},
 				}),
@@ -33,8 +40,8 @@ export default function TabLayout() {
 							style={{
 								width: 36,
 								height: 36,
-								marginTop: 15,
-								tintColor: focused ? '#fff' : undefined, // White when focused
+								marginTop: 25,
+								tintColor: focused ? '#fff' : undefined,
 							}}
 							resizeMode="contain"
 						/>
@@ -51,8 +58,8 @@ export default function TabLayout() {
 							style={{
 								width: 36,
 								height: 36,
-								marginTop: 15,
-								tintColor: focused ? '#fff' : undefined, // White when focused
+								marginTop: 25,
+								tintColor: focused ? '#fff' : undefined,
 							}}
 							resizeMode="contain"
 						/>

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
@@ -94,9 +95,34 @@ function LayoutWithAuth() {
 				options={{
 					title: 'Create Entry',
 					presentation: 'modal',
+					headerShown: true,
+					headerTitleStyle: {
+						fontFamily: 'PixelifySans_Bold',
+						color: Colors.title,
+						fontSize: 20,
+					},
+					headerBackground: () => (
+						<View
+							style={{
+								backgroundColor: Colors.backgroundAlt,
+								flex: 1,
+							}}
+						/>
+					),
 					headerRight: () => (
-						<TouchableOpacity onPress={() => router.replace('/')}>
-							<Text style={{ color: '#1e90ff', fontSize: 16 }}>Close</Text>
+						<TouchableOpacity
+							onPress={() => router.replace('/')}
+							style={{ width: 50, alignItems: 'center' }}
+						>
+							<Text
+								style={{
+									color: Colors.primary,
+									fontSize: 16,
+									fontFamily: 'PixelifySans',
+								}}
+							>
+								Close
+							</Text>
 						</TouchableOpacity>
 					),
 				}}
