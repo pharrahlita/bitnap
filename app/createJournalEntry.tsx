@@ -23,7 +23,6 @@ export default function CreateJournalEntry() {
 	const [contents, setContents] = useState('');
 	const [dreamType, setDreamType] = useState('Standard');
 	const [date, setDate] = useState(new Date());
-	const [feelings, setFeelings] = useState('');
 	const [interpretation, setInterpretation] = useState('');
 	const [moodBefore, setMoodBefore] = useState('');
 	const [moodAfter, setMoodAfter] = useState('');
@@ -33,7 +32,6 @@ export default function CreateJournalEntry() {
 	// Character limits
 	const TITLE_LIMIT = 50;
 	const CONTENTS_LIMIT = 1000;
-	const FEELINGS_LIMIT = 200;
 	const INTERPRETATION_LIMIT = 200;
 
 	const handleSave = async () => {
@@ -66,7 +64,6 @@ export default function CreateJournalEntry() {
 					content: contents,
 					dream_type: dreamType,
 					date,
-					feelings,
 					interpretation,
 					mood_before: moodBefore,
 					mood_after: moodAfter,
@@ -226,24 +223,6 @@ export default function CreateJournalEntry() {
 									</TouchableOpacity>
 								))}
 							</ScrollView>
-						</View>
-
-						<TextInput
-							style={[styles.input, styles.textArea]}
-							multiline
-							textAlignVertical="top"
-							placeholder="How did the dream make you feel?"
-							placeholderTextColor={Colors.textAlt}
-							value={feelings}
-							onChangeText={(text) =>
-								setFeelings(text.slice(0, FEELINGS_LIMIT))
-							}
-							maxLength={FEELINGS_LIMIT}
-						/>
-						<View style={styles.counterContainer}>
-							<Text style={styles.counterText}>
-								{feelings.length}/{FEELINGS_LIMIT}
-							</Text>
 						</View>
 
 						<TextInput
