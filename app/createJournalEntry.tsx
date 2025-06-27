@@ -28,6 +28,13 @@ export default function CreateJournalEntry() {
 	const [moodBefore, setMoodBefore] = useState('');
 	const [moodAfter, setMoodAfter] = useState('');
 	const [feelings, setFeelings] = useState('');
+	const [sleepTime, setSleepTime] = useState<Date | null>(null);
+	const [wakeTime, setWakeTime] = useState<Date | null>(null);
+	const [isSleepPickerVisible, setSleepPickerVisible] = useState(false);
+	const [isWakePickerVisible, setWakePickerVisible] = useState(false);
+	const [tags, setTags] = useState<string>('');
+	const [tagList, setTagList] = useState<string[]>([]);
+	const [sleepQuality, setSleepQuality] = useState<number>(0);
 	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 	const scrollViewRef = useRef<ScrollView>(null);
 
@@ -36,6 +43,23 @@ export default function CreateJournalEntry() {
 	const CONTENTS_LIMIT = 1000;
 	const INTERPRETATION_LIMIT = 200;
 	const FEELINGS_LIMIT = 200;
+
+	const handleTagInput = (text: string) => {
+		// Only add tag if user types a comma
+		if (text.endsWith(',')) {
+			const newTag = text.replace(/,+$/, '').trim();
+			if (newTag && !tagList.includes(newTag)) {
+				setTagList([...tagList, newTag]);
+			}
+			setTags('');
+		} else {
+			setTags(text);
+		}
+	};
+
+	const handleRemoveTag = (tag: string) => {
+		setTagList(tagList.filter((t) => t !== tag));
+	};
 
 	const handleSave = async () => {
 		// Validation for mandatory fields
@@ -70,6 +94,10 @@ export default function CreateJournalEntry() {
 					interpretation,
 					mood_before: moodBefore,
 					mood_after: moodAfter,
+					sleep_time: sleepTime ? sleepTime.toISOString() : null,
+					wake_time: wakeTime ? wakeTime.toISOString() : null,
+					tags: tagList.join(','),
+					sleep_quality: sleepQuality,
 				},
 			]);
 
@@ -171,7 +199,88 @@ export default function CreateJournalEntry() {
 						/>
 					</View>
 
+					{/* Tags Input */}
+					<View style={styles.tagsContainer}>
+						<Text style={styles.subHeading}>
+							Custom Tags (seperate with commas):
+						</Text>
+						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+							<TextInput
+								style={[styles.input, { flex: 1, marginBottom: 0 }]}
+								placeholder="e.g. flying, recurring, nightmare"
+								placeholderTextColor={Colors.textAlt}
+								value={tags}
+								onChangeText={handleTagInput}
+								returnKeyType="done"
+							/>
+						</View>
+						<View style={styles.tagList}>
+							{tagList.map((tag) => (
+								<View key={tag} style={styles.tagItem}>
+									<Text style={styles.tagText}>{tag}</Text>
+									<TouchableOpacity onPress={() => handleRemoveTag(tag)}>
+										<Text style={styles.removeTagText}>×</Text>
+									</TouchableOpacity>
+								</View>
+							))}
+						</View>
+					</View>
+
 					<Collapsible title="Additional Dream Information">
+						{/* Sleep and Wake Time Pickers */}
+						<View style={styles.timePickerRow}>
+							<View style={{ flex: 1, marginRight: 8 }}>
+								<Text style={styles.subHeading}>Sleep Time:</Text>
+								<TouchableOpacity
+									style={styles.timeButton}
+									onPress={() => setSleepPickerVisible(true)}
+								>
+									<Text style={styles.timeButtonText}>
+										{sleepTime
+											? sleepTime.toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+											  })
+											: 'Set Sleep Time'}
+									</Text>
+								</TouchableOpacity>
+								<DateTimePickerModal
+									isVisible={isSleepPickerVisible}
+									mode="time"
+									onConfirm={(selectedTime) => {
+										setSleepPickerVisible(false);
+										setSleepTime(selectedTime);
+									}}
+									onCancel={() => setSleepPickerVisible(false)}
+								/>
+							</View>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.subHeading}>Wake Time:</Text>
+								<TouchableOpacity
+									style={styles.timeButton}
+									onPress={() => setWakePickerVisible(true)}
+								>
+									<Text style={styles.timeButtonText}>
+										{wakeTime
+											? wakeTime.toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+											  })
+											: 'Set Wake Time'}
+									</Text>
+								</TouchableOpacity>
+								<DateTimePickerModal
+									isVisible={isWakePickerVisible}
+									mode="time"
+									onConfirm={(selectedTime) => {
+										setWakePickerVisible(false);
+										setWakeTime(selectedTime);
+									}}
+									onCancel={() => setWakePickerVisible(false)}
+								/>
+							</View>
+						</View>
+
 						<View style={styles.horizontalPickerContainer}>
 							<Text style={styles.subHeading}>Mood before sleep:</Text>
 							<ScrollView
@@ -264,6 +373,28 @@ export default function CreateJournalEntry() {
 							</Text>
 						</View>
 					</Collapsible>
+
+					{/* Sleep Quality Rating */}
+					<View style={styles.sleepQualityContainer}>
+						<Text style={styles.subHeading}>Sleep Quality (optional):</Text>
+						<View style={{ flexDirection: 'row', marginTop: 4 }}>
+							{[1, 2, 3, 4, 5].map((num) => (
+								<TouchableOpacity
+									key={num}
+									onPress={() =>
+										setSleepQuality(num === sleepQuality ? 0 : num)
+									}
+									style={
+										sleepQuality >= num ? styles.starSelected : styles.star
+									}
+								>
+									<Text style={styles.starText}>
+										{sleepQuality >= num ? '★' : '☆'}
+									</Text>
+								</TouchableOpacity>
+							))}
+						</View>
+					</View>
 
 					<TouchableOpacity style={styles.button} onPress={handleSave}>
 						<Text style={styles.buttonText}>Save</Text>
