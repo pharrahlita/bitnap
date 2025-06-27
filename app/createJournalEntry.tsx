@@ -26,6 +26,7 @@ export default function CreateJournalEntry() {
 	const [interpretation, setInterpretation] = useState('');
 	const [moodBefore, setMoodBefore] = useState('');
 	const [moodAfter, setMoodAfter] = useState('');
+	const [feelings, setFeelings] = useState('');
 	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 	const scrollViewRef = useRef<ScrollView>(null);
 
@@ -33,6 +34,7 @@ export default function CreateJournalEntry() {
 	const TITLE_LIMIT = 50;
 	const CONTENTS_LIMIT = 1000;
 	const INTERPRETATION_LIMIT = 200;
+	const FEELINGS_LIMIT = 200;
 
 	const handleSave = async () => {
 		// Validation for mandatory fields
@@ -195,6 +197,24 @@ export default function CreateJournalEntry() {
 									</TouchableOpacity>
 								))}
 							</ScrollView>
+						</View>
+
+						<TextInput
+							style={[styles.input, styles.textArea]}
+							multiline
+							textAlignVertical="top"
+							placeholder="Was there anything on your mind before sleeping?"
+							placeholderTextColor={Colors.textAlt}
+							value={feelings}
+							onChangeText={(text) =>
+								setFeelings(text.slice(0, FEELINGS_LIMIT))
+							}
+							maxLength={FEELINGS_LIMIT}
+						/>
+						<View style={styles.counterContainer}>
+							<Text style={styles.counterText}>
+								{feelings.length}/{FEELINGS_LIMIT}
+							</Text>
 						</View>
 
 						<View style={styles.horizontalPickerContainer}>
