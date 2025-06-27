@@ -111,11 +111,8 @@ export default function HomeScreen() {
 	};
 
 	const journalEntries = journals.map((journal) => ({
-		id: journal.id,
-		date: journal.date,
-		title: journal.title,
-		content: journal.content,
-		tags: journal.dream_type ? [journal.dream_type] : [],
+		...journal,
+		tags: journal.tags ? journal.tags.split(',').filter(Boolean) : [],
 	}));
 
 	const generateDates = () => {
@@ -293,11 +290,7 @@ export default function HomeScreen() {
 							onPress={() =>
 								router.push({
 									pathname: '/journalContents',
-									params: {
-										title: item.title,
-										content: item.content,
-										tags: item.tags,
-									},
+									params: item,
 								})
 							}
 						>
@@ -356,11 +349,7 @@ export default function HomeScreen() {
 							onPress={() =>
 								router.push({
 									pathname: '/journalContents',
-									params: {
-										title: item.title,
-										content: item.content,
-										tags: item.tags,
-									},
+									params: item,
 								})
 							}
 							style={styles.gridItem}
