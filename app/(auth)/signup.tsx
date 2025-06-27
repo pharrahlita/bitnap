@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -187,8 +188,8 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.background,
 	},
 	title: {
-		fontSize: 36,
-		fontFamily: 'PixelifySans_Bold',
+		fontSize: FontSizes.extraLarge,
+		fontFamily: Fonts.dogicaPixelBold,
 		color: Colors.title,
 		marginBottom: 24,
 	},
@@ -198,25 +199,27 @@ const styles = StyleSheet.create({
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
 		width: '100%',
+		fontSize: FontSizes.small,
 	},
 	button: {
 		backgroundColor: Colors.primary,
-		padding: 14,
+		padding: 12,
 		borderRadius: 8,
 		width: '100%',
 	},
 	buttonText: {
 		color: Colors.button,
-		fontSize: 16,
+		fontSize: FontSizes.medium,
 		textAlign: 'center',
-		fontFamily: 'PixelifySans_Bold',
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 	linkText: {
 		color: Colors.textAlt,
 		textAlign: 'center',
 		marginTop: 16,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
 	},
 });

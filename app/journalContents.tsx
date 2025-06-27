@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { Fonts } from '@/constants/Font';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: 30,
-		fontFamily: 'PixelifySans_Bold',
+		fontFamily: Fonts.dogicaPixelBold,
 		color: Colors.title,
 		marginBottom: 16,
 	},

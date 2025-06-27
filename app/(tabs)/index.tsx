@@ -1,6 +1,7 @@
 import { default as closeIcon } from '@/assets/images/icons/close.png';
 import { default as searchIcon } from '@/assets/images/icons/search.png';
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes, LineHeights } from '@/constants/Font';
 import { supabase } from '@/lib/supabase';
 import { RootStackParamList } from '@/types';
 import { useNavigation } from '@react-navigation/native';
@@ -414,9 +415,8 @@ const styles = StyleSheet.create({
 	},
 	monthHeader: {
 		color: '#fff',
-		fontSize: 30,
-		fontWeight: 'bold',
-		fontFamily: 'PixelifySans_Bold',
+		fontSize: FontSizes.extraLarge,
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 	searchBarContainer: {
 		width: '100%',
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
 		width: '100%',
 	},
 	dateScroller: {
@@ -451,8 +451,8 @@ const styles = StyleSheet.create({
 	},
 	dateText: {
 		color: Colors.text,
-		fontSize: 18,
-		fontFamily: 'PixelifySans',
+		fontSize: FontSizes.medium,
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 	entryList: {
 		flex: 1,
@@ -479,14 +479,17 @@ const styles = StyleSheet.create({
 	},
 	entryTitle: {
 		color: Colors.primary,
-		fontSize: 20,
+		fontSize: FontSizes.medium,
+		lineHeight: LineHeights.medium,
 		fontWeight: 'bold',
-		fontFamily: 'PixelifySans_Bold',
+		fontFamily: Fonts.dogicaPixelBold,
 		marginBottom: 4,
 	},
 	entryContent: {
 		color: Colors.textOther,
-		fontFamily: 'PixelifySans',
+		fontSize: FontSizes.small,
+		lineHeight: LineHeights.medium,
+		fontFamily: Fonts.dogicaPixel,
 	},
 	thumbnail: {
 		width: 64,
@@ -510,9 +513,9 @@ const styles = StyleSheet.create({
 		paddingVertical: 4,
 		backgroundColor: Colors.primary,
 		color: Colors.text,
-		fontSize: 12,
+		fontSize: FontSizes.small,
 		overflow: 'hidden',
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
 		marginRight: 6,
 		marginBottom: 4,
 	},
@@ -524,9 +527,9 @@ const styles = StyleSheet.create({
 	},
 	entryDate: {
 		color: Colors.textOther,
-		fontSize: 12,
+		fontSize: FontSizes.small,
 		textAlign: 'right',
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
 	},
 	selectedDate: {
 		backgroundColor: Colors.primary,

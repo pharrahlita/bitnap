@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import { useRouter } from 'expo-router';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -40,8 +41,8 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.background,
 	},
 	title: {
-		fontSize: 48,
-		fontFamily: 'PixelifySans_Bold',
+		fontSize: FontSizes.extraExtraLarge,
+		fontFamily: Fonts.dogicaPixelBold,
 		color: Colors.title,
 		marginBottom: 40,
 	},
@@ -49,21 +50,21 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent',
 		borderColor: Colors.primary,
 		borderWidth: 2,
-		padding: 14,
+		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
 		width: '75%',
 	},
 	buttonFilled: {
 		backgroundColor: Colors.primary,
-		padding: 14,
+		padding: 12,
 		borderRadius: 8,
 		width: '75%',
 	},
 	buttonText: {
 		color: Colors.button,
-		fontSize: 16,
+		fontSize: FontSizes.medium,
 		textAlign: 'center',
-		fontFamily: 'PixelifySans_Bold',
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 });

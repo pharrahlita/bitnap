@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { FontSizes, Fonts, LineHeights } from '@/constants/Font';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -160,19 +161,22 @@ const styles = StyleSheet.create({
 		borderColor: Colors.background,
 	},
 	username: {
-		fontSize: 24,
-		fontWeight: 'bold',
+		fontSize: FontSizes.extraLarge,
+		fontFamily: Fonts.dogicaPixelBold,
 		color: Colors.title,
 		marginBottom: 8,
 	},
 	bio: {
-		fontSize: 18,
 		color: Colors.text,
 		marginBottom: 8,
+		fontSize: FontSizes.medium,
+		fontFamily: Fonts.dogicaPixelBold,
+		lineHeight: LineHeights.medium,
 	},
 	joinDate: {
-		fontSize: 16,
 		color: Colors.textOther,
+		fontSize: FontSizes.small,
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 	center: {
 		flex: 1,
@@ -189,6 +193,7 @@ const styles = StyleSheet.create({
 	editButtonText: {
 		color: '#fff',
 		fontWeight: '600',
-		fontSize: 16,
+		fontSize: FontSizes.medium,
+		fontFamily: Fonts.dogicaPixelBold,
 	},
 });

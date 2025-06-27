@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {
@@ -19,6 +20,8 @@ export default function RootLayout() {
 		SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
 		PixelifySans: require('../assets/fonts/PixelifySans-Regular.ttf'),
 		PixelifySans_Bold: require('../assets/fonts/PixelifySans-Bold.ttf'),
+		dogicaPixel: require('../assets/fonts/dogicapixel.ttf'),
+		dogicaPixelBold: require('../assets/fonts/dogicapixelbold.ttf'),
 	});
 
 	if (!loaded) {
@@ -67,13 +70,17 @@ function LayoutWithAuth() {
 				options={{
 					title: 'Dream Contents',
 					headerBackTitle: 'Back',
-					headerShown: true,
-					headerTitleStyle: {
-						fontFamily: 'PixelifySans_Bold',
-						color: Colors.title,
-						fontSize: 20,
+					headerBackTitleStyle: {
+						fontSize: FontSizes.medium,
+						fontFamily: Fonts.dogicaPixel,
 					},
 					headerTintColor: Colors.primary,
+					headerShown: true,
+					headerTitleStyle: {
+						fontFamily: Fonts.dogicaPixelBold,
+						color: Colors.title,
+						fontSize: FontSizes.large,
+					},
 					headerBackground: () => (
 						<View
 							style={{
@@ -112,9 +119,9 @@ function LayoutWithAuth() {
 					presentation: 'modal',
 					headerShown: true,
 					headerTitleStyle: {
-						fontFamily: 'PixelifySans_Bold',
+						fontFamily: Fonts.dogicaPixelBold,
 						color: Colors.title,
-						fontSize: 20,
+						fontSize: FontSizes.large,
 					},
 					headerBackground: () => (
 						<View
@@ -132,8 +139,8 @@ function LayoutWithAuth() {
 							<Text
 								style={{
 									color: Colors.primary,
-									fontSize: 16,
-									fontFamily: 'PixelifySans',
+									fontSize: FontSizes.medium,
+									fontFamily: Fonts.dogicaPixel,
 								}}
 							>
 								Close

@@ -1,5 +1,6 @@
 import { Collapsible } from '@/components/Collapsible';
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes, LineHeights } from '@/constants/Font';
 import { supabase } from '@/lib/supabase';
 import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
@@ -193,7 +194,7 @@ export default function CreateJournalEntry() {
 											}
 										}}
 									>
-										<Text style={styles.pickerItemText}>{type}</Text>
+										<Text style={styles.pickerItemEmoji}>{type}</Text>
 									</TouchableOpacity>
 								))}
 							</ScrollView>
@@ -239,7 +240,7 @@ export default function CreateJournalEntry() {
 											}
 										}}
 									>
-										<Text style={styles.pickerItemText}>{type}</Text>
+										<Text style={styles.pickerItemEmoji}>{type}</Text>
 									</TouchableOpacity>
 								))}
 							</ScrollView>
@@ -285,20 +286,23 @@ const styles = StyleSheet.create({
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
 	},
 	inputTitle: {
 		color: Colors.primary,
-		fontSize: 18,
+		fontSize: FontSizes.large,
 	},
 	subHeading: {
 		margin: 4,
 		color: Colors.textOther,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
 	},
 	textArea: {
 		height: 100,
 		textAlignVertical: 'top',
+		lineHeight: LineHeights.medium,
 	},
 	horizontalPickerContainer: {
 		backgroundColor: Colors.backgroundAlt,
@@ -307,7 +311,7 @@ const styles = StyleSheet.create({
 		padding: 8,
 	},
 	horizontalPickerItem: {
-		paddingHorizontal: 16,
+		paddingHorizontal: 14,
 		paddingVertical: 10,
 	},
 	selectedPickerItem: {
@@ -316,7 +320,11 @@ const styles = StyleSheet.create({
 	},
 	pickerItemText: {
 		color: Colors.text,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+	},
+	pickerItemEmoji: {
+		fontSize: 16,
 	},
 	button: {
 		backgroundColor: Colors.primary,
@@ -326,8 +334,9 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: Colors.text,
-		fontWeight: 'bold',
 		textAlign: 'center',
+		fontFamily: Fonts.dogicaPixelBold,
+		fontSize: FontSizes.medium,
 	},
 	datePickerContainer: {
 		backgroundColor: Colors.backgroundAlt,
@@ -337,7 +346,8 @@ const styles = StyleSheet.create({
 	},
 	datePickerButtonText: {
 		color: Colors.text,
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
 	},
 	counterContainer: {
 		flexDirection: 'row',
@@ -347,7 +357,66 @@ const styles = StyleSheet.create({
 	},
 	counterText: {
 		color: Colors.textOther,
-		fontSize: 12,
-		fontFamily: 'PixelifySans',
+		fontSize: FontSizes.small,
+		fontFamily: Fonts.dogicaPixel,
+	},
+	timePickerRow: {
+		flexDirection: 'row',
+		marginBottom: 16,
+	},
+	timeButton: {
+		backgroundColor: Colors.backgroundAlt,
+		borderRadius: 8,
+		padding: 12,
+		alignItems: 'center',
+		marginTop: 4,
+	},
+	timeButtonText: {
+		color: Colors.text,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+	},
+	tagsContainer: {
+		marginBottom: 16,
+	},
+	tagList: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		marginTop: 8,
+	},
+	tagItem: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: Colors.backgroundAlt,
+		borderRadius: 16,
+		paddingHorizontal: 10,
+		paddingVertical: 4,
+		marginRight: 8,
+		marginBottom: 8,
+	},
+	tagText: {
+		color: Colors.textOther,
+		fontFamily: Fonts.dogicaPixel,
+		marginRight: 4,
+		fontSize: FontSizes.small,
+	},
+	removeTagText: {
+		color: Colors.primary,
+		fontWeight: 'bold',
+		fontSize: FontSizes.large,
+	},
+	sleepQualityContainer: {
+		marginBottom: 16,
+		alignItems: 'center',
+	},
+	star: {
+		padding: 8,
+	},
+	starSelected: {
+		padding: 8,
+	},
+	starText: {
+		fontSize: FontSizes.extraExtraLarge,
+		color: Colors.primary,
 	},
 });

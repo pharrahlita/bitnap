@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import { PropsWithChildren, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -47,12 +48,12 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.backgroundAlt,
 	},
 	title: {
-		fontFamily: 'PixelifySans',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
 		color: Colors.text,
 	},
 	content: {
 		marginTop: 6,
-
 		padding: 8,
 	},
 });
