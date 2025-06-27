@@ -91,6 +91,7 @@ export default function CreateJournalEntry() {
 					content: contents,
 					dream_type: dreamType,
 					date,
+					feelings,
 					interpretation,
 					mood_before: moodBefore,
 					mood_after: moodAfter,
