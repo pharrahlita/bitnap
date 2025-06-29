@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -177,9 +179,9 @@ export default function EditProfile() {
 
 const styles = StyleSheet.create({
 	container: {
-		padding: 24,
-		backgroundColor: '#1c1c1c',
-		flexGrow: 1,
+		flex: 1,
+		padding: 16,
+		backgroundColor: Colors.background,
 	},
 	label: {
 		color: '#aaa',
@@ -187,22 +189,25 @@ const styles = StyleSheet.create({
 		marginTop: 16,
 	},
 	input: {
-		backgroundColor: '#2e2e2e',
-		color: '#fff',
+		backgroundColor: Colors.backgroundAlt,
+		color: Colors.textOther,
 		padding: 12,
-		borderRadius: 10,
+		borderRadius: 8,
+		marginBottom: 16,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
 	},
 	button: {
-		marginTop: 32,
-		backgroundColor: '#4c8bf5',
+		backgroundColor: Colors.primary,
 		padding: 14,
 		borderRadius: 10,
+		marginBottom: 16,
 	},
 	buttonText: {
+		color: Colors.text,
 		textAlign: 'center',
-		color: '#fff',
-		fontWeight: 'bold',
-		fontSize: 16,
+		fontFamily: Fonts.dogicaPixelBold,
+		fontSize: FontSizes.medium,
 	},
 	avatar: {
 		width: 100,
