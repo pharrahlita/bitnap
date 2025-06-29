@@ -6,6 +6,7 @@ import {
 	ActivityIndicator,
 	Image,
 	RefreshControl,
+	SafeAreaView,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -93,45 +94,55 @@ export default function Profile() {
 		: 'Unknown';
 
 	return (
-		<ScrollView
-			contentContainerStyle={{ flexGrow: 1 }}
-			refreshControl={
-				<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-			}
-		>
-			<View style={styles.container}>
-				<View style={styles.banner} />
-				<View style={styles.avatarWrapper}>
-					<Image
-						source={
-							profile.avatar_url
-								? { uri: profile.avatar_url }
-								: require('@/assets/images/react-logo.png')
-						}
-						style={styles.avatar}
-					/>
+		<SafeAreaView style={styles.outerContainer}>
+			<ScrollView
+				contentContainerStyle={{ flexGrow: 1 }}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
+			>
+				<View style={styles.container}>
+					<View style={styles.banner} />
+					<View style={styles.avatarWrapper}>
+						<Image
+							source={
+								profile.avatar_url
+									? { uri: profile.avatar_url }
+									: require('@/assets/images/react-logo.png')
+							}
+							style={styles.avatar}
+						/>
+					</View>
+					<Text style={styles.username}>
+						{profile.username || 'No username'}
+					</Text>
+					<Text style={styles.bio}>{profile.bio || ''}</Text>
+					<Text style={styles.joinDate}>Joined: {joinDate}</Text>
+					<TouchableOpacity
+						style={styles.editButton}
+						onPress={() => router.push('/buddies')}
+					>
+						<Text style={styles.editButtonText}>
+							Buddies: {buddyCount || 0}
+						</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.editButton}
+						onPress={() => router.push('/editProfile')}
+					>
+						<Text style={styles.editButtonText}>Edit Profile</Text>
+					</TouchableOpacity>
 				</View>
-				<Text style={styles.username}>{profile.username || 'No username'}</Text>
-				<Text style={styles.bio}>{profile.bio || ''}</Text>
-				<Text style={styles.joinDate}>Joined: {joinDate}</Text>
-				<TouchableOpacity
-					style={styles.editButton}
-					onPress={() => router.push('/buddies')}
-				>
-					<Text style={styles.editButtonText}>Buddies: {buddyCount || 0}</Text>
-				</TouchableOpacity>
-				<TouchableOpacity
-					style={styles.editButton}
-					onPress={() => router.push('/editProfile')}
-				>
-					<Text style={styles.editButtonText}>Edit Profile</Text>
-				</TouchableOpacity>
-			</View>
-		</ScrollView>
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	outerContainer: {
+		flex: 1,
+		backgroundColor: Colors.backgroundAlt,
+	},
 	container: {
 		flex: 1,
 		backgroundColor: Colors.background,
