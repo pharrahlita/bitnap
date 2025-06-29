@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/Colors';
+import { Fonts, FontSizes } from '@/constants/Font';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -13,6 +15,7 @@ import {
 import { supabase } from '../lib/supabase';
 
 export default function Buddies() {
+	const [refreshing, setRefreshing] = useState(false);
 	const [buddies, setBuddies] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [userId, setUserId] = useState<string | null>(null);
@@ -22,31 +25,42 @@ export default function Buddies() {
 	const [adding, setAdding] = useState(false);
 	const router = useRouter();
 
-	useEffect(() => {
-		const fetchBuddies = async () => {
-			setLoading(true);
-			const {
-				data: { user },
-			} = await supabase.auth.getUser();
-			if (!user) {
-				setBuddies([]);
-				setUserId(null);
-				setLoading(false);
-				return;
-			}
-			setUserId(user.id);
-			// Fetch pending and accepted buddy requests involving the user
-			const { data, error } = await supabase
-				.from('buddies')
-				.select('id, user_id, buddy_id, status')
-				.or(`user_id.eq.${user.id},buddy_id.eq.${user.id}`);
-			if (error) {
-				setBuddies([]);
-			} else {
-				setBuddies(data || []);
-			}
+	const fetchBuddies = async () => {
+		setLoading(true);
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		if (!user) {
+			setBuddies([]);
+			setUserId(null);
 			setLoading(false);
-		};
+			return;
+		}
+		setUserId(user.id);
+		// Fetch pending and accepted buddy requests involving the user
+		const { data, error } = await supabase
+			.from('buddies')
+			.select('id, user_id, buddy_id, status')
+			.or(`user_id.eq.${user.id},buddy_id.eq.${user.id}`);
+		if (error) {
+			setBuddies([]);
+		} else {
+			setBuddies(data || []);
+		}
+		setLoading(false);
+		setRefreshing(false);
+	};
+
+	useEffect(() => {
+		console.log('Fetched buddies:', buddies, 'Current user:', userId);
+	}, [buddies, userId]);
+
+	const handleRefresh = async () => {
+		setRefreshing(true);
+		await fetchBuddies();
+	};
+
+	useEffect(() => {
 		fetchBuddies();
 	}, []);
 
@@ -88,10 +102,7 @@ export default function Buddies() {
 	};
 
 	const handleDecline = async (buddyId: string) => {
-		await supabase
-			.from('buddies')
-			.update({ status: 'rejected' })
-			.eq('id', buddyId);
+		await supabase.from('buddies').delete().eq('id', buddyId);
 		setBuddies(buddies.filter((b) => b.id !== buddyId));
 	};
 
@@ -204,68 +215,68 @@ export default function Buddies() {
 					/>
 				</View>
 			)}
-			{buddies.length === 0 ? (
-				<Text style={styles.text}>No buddies found.</Text>
-			) : (
-				<FlatList
-					data={buddies}
-					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => {
-						const otherId = getOtherUserId(item);
-						const profile = profiles[otherId];
-						return (
-							<View style={styles.row}>
-								<TouchableOpacity
-									style={{
-										flex: 1,
-										flexDirection: 'row',
-										alignItems: 'center',
-									}}
-									onPress={() =>
-										router.push({
-											pathname: '../otherProfile',
-											params: { userId: otherId },
-										})
-									}
-								>
-									{profile?.avatar_url ? (
-										<Image
-											source={{ uri: profile.avatar_url }}
-											style={styles.avatar}
-										/>
-									) : (
-										<View
-											style={[styles.avatar, { backgroundColor: '#444' }]}
-										/>
-									)}
-									<Text style={styles.username}>
-										{profile?.username || 'Unknown'}
-									</Text>
-								</TouchableOpacity>
-								{item.status === 'pending' && item.buddy_id === userId && (
-									<>
-										<TouchableOpacity
-											style={styles.acceptBtn}
-											onPress={() => handleAccept(item.id)}
-										>
-											<Text style={styles.btnText}>Accept</Text>
-										</TouchableOpacity>
-										<TouchableOpacity
-											style={styles.declineBtn}
-											onPress={() => handleDecline(item.id)}
-										>
-											<Text style={styles.btnText}>Decline</Text>
-										</TouchableOpacity>
-									</>
+			<FlatList
+				data={buddies}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => {
+					const otherId = getOtherUserId(item);
+					const profile = profiles[otherId];
+					return (
+						<View style={styles.row}>
+							<TouchableOpacity
+								style={{
+									flex: 1,
+									flexDirection: 'row',
+									alignItems: 'center',
+								}}
+								onPress={() =>
+									router.push({
+										pathname: '../otherProfile',
+										params: { userId: otherId },
+									})
+								}
+							>
+								{profile?.avatar_url ? (
+									<Image
+										source={{ uri: profile.avatar_url }}
+										style={styles.avatar}
+									/>
+								) : (
+									<View style={[styles.avatar]} />
 								)}
-								{item.status === 'accepted' && (
-									<Text style={styles.accepted}>Buddy</Text>
-								)}
-							</View>
-						);
-					}}
-				/>
-			)}
+								<Text style={styles.username}>
+									{profile?.username || 'Unknown'}
+								</Text>
+							</TouchableOpacity>
+							{item.status === 'pending' && item.buddy_id === userId && (
+								<>
+									<TouchableOpacity
+										style={styles.acceptBtn}
+										onPress={() => handleAccept(item.id)}
+									>
+										<Text style={styles.btnText}>Accept</Text>
+									</TouchableOpacity>
+									<TouchableOpacity
+										style={styles.declineBtn}
+										onPress={() => handleDecline(item.id)}
+									>
+										<Text style={styles.btnText}>Decline</Text>
+									</TouchableOpacity>
+								</>
+							)}
+							{item.status === 'pending' && item.user_id === userId && (
+								<Text style={styles.pendingText}>Pending</Text>
+							)}
+							{item.status === 'accepted' && (
+								<Text style={styles.accepted}>Buddy</Text>
+							)}
+						</View>
+					);
+				}}
+				refreshing={refreshing}
+				onRefresh={handleRefresh}
+				ListEmptyComponent={<Text style={styles.text}>No buddies found.</Text>}
+			/>
 		</View>
 	);
 }
@@ -274,34 +285,33 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 20,
-		backgroundColor: '#1c1c1c',
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: 'bold',
-		color: '#fff',
-		marginBottom: 16,
+		backgroundColor: Colors.background,
 	},
 	text: {
 		color: '#fff',
-		fontSize: 16,
+		fontSize: FontSizes.medium,
+		fontFamily: Fonts.dogicaPixel,
 		marginBottom: 8,
 	},
 	row: {
 		flexDirection: 'row',
 		alignItems: 'center',
 		marginBottom: 16,
+		backgroundColor: Colors.backgroundAlt,
+		borderRadius: 8,
+		padding: 8,
 	},
 	avatar: {
 		width: 48,
 		height: 48,
 		borderRadius: 24,
 		marginRight: 12,
-		backgroundColor: '#333',
+		backgroundColor: Colors.backgroundAlt,
 	},
 	username: {
-		color: '#fff',
-		fontSize: 18,
+		fontFamily: Fonts.dogicaPixel,
+		color: Colors.textOther,
+		fontSize: FontSizes.medium,
 		flex: 1,
 	},
 	acceptBtn: {
@@ -316,49 +326,55 @@ const styles = StyleSheet.create({
 		borderRadius: 6,
 	},
 	btnText: {
-		color: '#fff',
-		fontWeight: 'bold',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
+		color: Colors.text,
 	},
 	accepted: {
+		marginHorizontal: 8,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
 		color: '#4caf50',
-		fontWeight: 'bold',
-		marginLeft: 8,
 	},
 	addBuddyBtn: {
-		backgroundColor: '#2196f3',
+		backgroundColor: Colors.primary,
 		padding: 10,
 		borderRadius: 8,
 		marginBottom: 16,
 		alignSelf: 'flex-end',
 	},
 	addBuddyBtnText: {
-		color: '#fff',
-		fontWeight: 'bold',
-		fontSize: 16,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
+		color: Colors.text,
 	},
 	addBuddyContainer: {
-		backgroundColor: '#222',
+		backgroundColor: Colors.backgroundAlt,
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
 	},
 	input: {
-		backgroundColor: '#333',
-		color: '#fff',
-		borderRadius: 6,
-		padding: 8,
-		marginBottom: 8,
+		backgroundColor: '#fff',
+		color: Colors.textAlt,
+		padding: 12,
+		borderRadius: 8,
+		marginBottom: 16,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
+		width: '100%',
 	},
 	searchBtn: {
-		backgroundColor: '#555',
+		backgroundColor: Colors.primary,
 		padding: 8,
 		borderRadius: 6,
 		marginBottom: 8,
 		alignSelf: 'flex-end',
 	},
 	pendingText: {
+		marginHorizontal: 8,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
 		color: '#ffa500',
-		fontWeight: 'bold',
-		marginLeft: 8,
 	},
 });

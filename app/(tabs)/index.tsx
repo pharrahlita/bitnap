@@ -418,6 +418,7 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		marginBottom: 16,
 		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.medium,
 		width: '100%',
 	},
 	dateScroller: {

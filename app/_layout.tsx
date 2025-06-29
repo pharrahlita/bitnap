@@ -122,6 +122,25 @@ function LayoutWithAuth() {
 				options={{
 					title: 'Your Buddies',
 					headerBackTitle: 'Profile',
+					headerBackTitleStyle: {
+						fontSize: FontSizes.medium,
+						fontFamily: Fonts.dogicaPixel,
+					},
+					headerTintColor: Colors.primary,
+					headerShown: true,
+					headerTitleStyle: {
+						fontFamily: Fonts.dogicaPixelBold,
+						color: Colors.title,
+						fontSize: FontSizes.large,
+					},
+					headerBackground: () => (
+						<View
+							style={{
+								backgroundColor: Colors.backgroundAlt,
+								flex: 1,
+							}}
+						/>
+					),
 				}}
 			/>
 			<Stack.Screen
