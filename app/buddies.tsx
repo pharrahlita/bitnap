@@ -271,10 +271,27 @@ export default function Buddies() {
 }
 
 const styles = StyleSheet.create({
-	container: { flex: 1, padding: 20, backgroundColor: '#1c1c1c' },
-	title: { fontSize: 24, fontWeight: 'bold', color: '#fff', marginBottom: 16 },
-	text: { color: '#fff', fontSize: 16, marginBottom: 8 },
-	row: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+	container: {
+		flex: 1,
+		padding: 20,
+		backgroundColor: '#1c1c1c',
+	},
+	title: {
+		fontSize: 24,
+		fontWeight: 'bold',
+		color: '#fff',
+		marginBottom: 16,
+	},
+	text: {
+		color: '#fff',
+		fontSize: 16,
+		marginBottom: 8,
+	},
+	row: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 16,
+	},
 	avatar: {
 		width: 48,
 		height: 48,
@@ -282,16 +299,31 @@ const styles = StyleSheet.create({
 		marginRight: 12,
 		backgroundColor: '#333',
 	},
-	username: { color: '#fff', fontSize: 18, flex: 1 },
+	username: {
+		color: '#fff',
+		fontSize: 18,
+		flex: 1,
+	},
 	acceptBtn: {
 		backgroundColor: '#4caf50',
 		padding: 8,
 		borderRadius: 6,
 		marginRight: 8,
 	},
-	declineBtn: { backgroundColor: '#f44336', padding: 8, borderRadius: 6 },
-	btnText: { color: '#fff', fontWeight: 'bold' },
-	accepted: { color: '#4caf50', fontWeight: 'bold', marginLeft: 8 },
+	declineBtn: {
+		backgroundColor: '#f44336',
+		padding: 8,
+		borderRadius: 6,
+	},
+	btnText: {
+		color: '#fff',
+		fontWeight: 'bold',
+	},
+	accepted: {
+		color: '#4caf50',
+		fontWeight: 'bold',
+		marginLeft: 8,
+	},
 	addBuddyBtn: {
 		backgroundColor: '#2196f3',
 		padding: 10,
@@ -299,7 +331,11 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 		alignSelf: 'flex-end',
 	},
-	addBuddyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+	addBuddyBtnText: {
+		color: '#fff',
+		fontWeight: 'bold',
+		fontSize: 16,
+	},
 	addBuddyContainer: {
 		backgroundColor: '#222',
 		padding: 12,
@@ -320,5 +356,9 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 		alignSelf: 'flex-end',
 	},
-	pendingText: { color: '#ffa500', fontWeight: 'bold', marginLeft: 8 },
+	pendingText: {
+		color: '#ffa500',
+		fontWeight: 'bold',
+		marginLeft: 8,
+	},
 });
