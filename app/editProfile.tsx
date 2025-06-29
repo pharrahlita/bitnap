@@ -184,7 +184,9 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.background,
 	},
 	label: {
-		color: '#aaa',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textAlt,
 		marginBottom: 8,
 		marginTop: 16,
 	},
@@ -222,8 +224,10 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	avatarHint: {
-		color: '#888',
 		textAlign: 'center',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textAlt,
 		marginBottom: 8,
 	},
 });
