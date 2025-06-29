@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
+	Alert,
 	FlatList,
 	Image,
 	StyleSheet,
@@ -50,10 +51,6 @@ export default function Buddies() {
 		setLoading(false);
 		setRefreshing(false);
 	};
-
-	useEffect(() => {
-		console.log('Fetched buddies:', buddies, 'Current user:', userId);
-	}, [buddies, userId]);
 
 	const handleRefresh = async () => {
 		setRefreshing(true);
@@ -144,6 +141,31 @@ export default function Buddies() {
 		setShowAdd(false);
 		setSearch('');
 		setSearchResults([]);
+	};
+
+	const handleRemoveBuddy = (buddyId: string, username: string) => {
+		Alert.alert(
+			'Remove Buddy',
+			`Are you sure you want to remove ${username} from being a buddy?`,
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Remove',
+					style: 'destructive',
+					onPress: async () => {
+						const { error } = await supabase
+							.from('buddies')
+							.delete()
+							.eq('id', buddyId);
+						if (!error) {
+							setBuddies(buddies.filter((b) => b.id !== buddyId));
+						} else {
+							alert('Failed to remove buddy: ' + error.message);
+						}
+					},
+				},
+			]
+		);
 	};
 
 	if (loading) {
@@ -268,7 +290,11 @@ export default function Buddies() {
 								<Text style={styles.pendingText}>Pending</Text>
 							)}
 							{item.status === 'accepted' && (
-								<Text style={styles.accepted}>Buddy</Text>
+								<TouchableOpacity
+									onPress={() => handleRemoveBuddy(item.id, profile?.username)}
+								>
+									<Text style={styles.accepted}>Buddy</Text>
+								</TouchableOpacity>
 							)}
 						</View>
 					);
