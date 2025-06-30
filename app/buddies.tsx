@@ -96,11 +96,13 @@ export default function Buddies() {
 		setBuddies(
 			buddies.map((b) => (b.id === buddyId ? { ...b, status: 'accepted' } : b))
 		);
+		fetchBuddies();
 	};
 
 	const handleDecline = async (buddyId: string) => {
 		await supabase.from('buddies').delete().eq('id', buddyId);
 		setBuddies(buddies.filter((b) => b.id !== buddyId));
+		fetchBuddies();
 	};
 
 	// Collect all user IDs that are already buddies (accepted)
@@ -141,6 +143,7 @@ export default function Buddies() {
 		setShowAdd(false);
 		setSearch('');
 		setSearchResults([]);
+		fetchBuddies();
 	};
 
 	const handleRemoveBuddy = (buddyId: string, username: string) => {
