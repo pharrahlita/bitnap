@@ -56,7 +56,7 @@ export default function Profile() {
 		// 3. Fetch dreams from buddies
 		const { data: dreamsData, error } = await supabase
 			.from('journals')
-			.select('id, title, content, created_at, user_id')
+			.select('*')
 			.in('user_id', buddyAndSelfIds)
 			.eq('visibility', 'buddies')
 			.order('created_at', { ascending: false });
@@ -77,13 +77,18 @@ export default function Profile() {
 		fetchFeed();
 	}, []);
 
+	const journalEntries = dreams.map((journal) => ({
+		...journal,
+		tags: journal.tags ? journal.tags.split(',').filter(Boolean) : [],
+	}));
+
 	return (
 		<SafeAreaView style={styles.container}>
 			{loading ? (
 				<ActivityIndicator size="large" color="#fff" />
 			) : (
 				<FlatList
-					data={dreams}
+					data={journalEntries}
 					keyExtractor={(item) => item.id}
 					ListEmptyComponent={
 						<Text style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>
@@ -94,62 +99,73 @@ export default function Profile() {
 						const profile = profiles.find((p) => p.id === item.user_id);
 
 						return (
-							<TouchableOpacity
-								onPress={() =>
-									router.push({
-										pathname: '/journalContents',
-										params: item,
-									})
-								}
-							>
+							<View>
 								<View style={styles.senderContainer}>
-									<Image
-										source={
-											profile?.avatar_url
-												? { uri: profile.avatar_url }
-												: require('@/assets/images/react-logo.png')
+									<TouchableOpacity
+										onPress={() =>
+											router.push({
+												pathname: '/otherProfile',
+												params: { userId: item.user_id },
+											})
 										}
-										style={styles.avatar}
-									/>
+									>
+										<Image
+											source={
+												profile?.avatar_url
+													? { uri: profile.avatar_url }
+													: require('@/assets/images/react-logo.png')
+											}
+											style={styles.avatar}
+										/>
+									</TouchableOpacity>
 									<Text style={styles.username}>
 										{profile?.username || 'Unknown'} dreamed of...
 									</Text>
 								</View>
-								<View style={styles.entryItemOuter}>
-									<View style={styles.entryRow}>
-										{/* Thumbnail */}
-										<Image
-											source={
-												item.thumbnail
-													? { uri: item.thumbnail }
-													: require('@/assets/images/bitnap_highres_logo.png')
-											}
-											style={styles.thumbnail}
-										/>
-										{/* Text */}
-										<View style={styles.entryContentCol}>
-											<Text style={styles.entryTitle}>{item.title}</Text>
-											<Text style={styles.entryContent}>{item.content}</Text>
+								<TouchableOpacity
+									onPress={() =>
+										router.push({
+											pathname: '/journalContents',
+											params: item,
+										})
+									}
+								>
+									<View style={styles.entryItemOuter}>
+										<View style={styles.entryRow}>
+											{/* Thumbnail */}
+											<Image
+												source={
+													item.thumbnail
+														? { uri: item.thumbnail }
+														: require('@/assets/images/bitnap_highres_logo.png')
+												}
+												style={styles.thumbnail}
+											/>
+											{/* Text */}
+											<View style={styles.entryContentCol}>
+												<Text style={styles.entryTitle}>{item.title}</Text>
+												<Text style={styles.entryContent}>{item.content}</Text>
+											</View>
+										</View>
+										{/* Date and tags on the same row at the bottom */}
+										<View style={styles.entryFooter}>
+											<View style={styles.tagContainer}>
+												{item.tags &&
+													item.tags.length > 0 &&
+													item.tags.map((tag: string, idx: number) => (
+														<Text style={styles.tag} key={idx}>
+															{tag}
+														</Text>
+													))}
+											</View>
+											<Text style={styles.entryDate}>
+												{format(new Date(item.created_at), 'MMM dd, yyyy')}{' '}
+												{'    >>'}
+											</Text>
 										</View>
 									</View>
-									{/* Date and tags on the same row at the bottom */}
-									<View style={styles.entryFooter}>
-										<View style={styles.tagContainer}>
-											{item.tags &&
-												item.tags.length > 0 &&
-												item.tags.map((tag: string, idx: number) => (
-													<Text style={styles.tag} key={idx}>
-														{tag}
-													</Text>
-												))}
-										</View>
-										<Text style={styles.entryDate}>
-											{format(new Date(item.created_at), 'MMM dd, yyyy')}{' '}
-											{'    >>'}
-										</Text>
-									</View>
-								</View>
-							</TouchableOpacity>
+								</TouchableOpacity>
+							</View>
 						);
 					}}
 					style={styles.entryList}
