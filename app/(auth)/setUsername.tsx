@@ -23,6 +23,9 @@ export default function SetUsernameScreen() {
 	const [loading, setLoading] = useState(false);
 	const [newUsername, setNewUsername] = useState('');
 
+	const PLACEHOLDER_AVATAR_URL =
+		'https://vpbgjvtouzmiuunlvwff.supabase.co/storage/v1/object/public/avatars/default/default_avatar.png';
+
 	const isValidUsername = (name: string) => /^[a-zA-Z0-9_]{3,15}$/.test(name);
 
 	const handleSetUsername = async () => {
@@ -41,6 +44,7 @@ export default function SetUsernameScreen() {
 		const { error: upsertError } = await supabase.from('profiles').upsert({
 			id: params.userId,
 			username: newUsername,
+			avatar_url: PLACEHOLDER_AVATAR_URL,
 		});
 
 		if (upsertError) {
@@ -88,7 +92,7 @@ export default function SetUsernameScreen() {
 						{loading ? (
 							<ActivityIndicator color={Colors.text} />
 						) : (
-							<Text style={styles.buttonText}>Log In</Text>
+							<Text style={styles.buttonText}>Set Username</Text>
 						)}
 					</TouchableOpacity>
 				</View>
