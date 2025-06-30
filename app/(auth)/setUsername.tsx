@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
 	ActivityIndicator,
@@ -17,56 +17,41 @@ import {
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
-export default function LoginScreen() {
+export default function SetUsernameScreen() {
+	const params = useLocalSearchParams();
 	const router = useRouter();
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [newUsername, setNewUsername] = useState('');
 
-	const handleLogin = async () => {
+	const isValidUsername = (name: string) => /^[a-zA-Z0-9_]{3,15}$/.test(name);
+
+	const handleSetUsername = async () => {
+		if (!isValidUsername(newUsername)) {
+			Alert.alert(
+				'Invalid username',
+				'Username must be 3-15 characters and contain only letters, numbers, or underscores.'
+			);
+			return;
+		}
+
+		if (!params) return;
+
 		setLoading(true);
-		const { data, error } = await supabase.auth.signInWithPassword({
-			email,
-			password,
+
+		const { error: upsertError } = await supabase.from('profiles').upsert({
+			id: params.userId,
+			username: newUsername,
 		});
 
-		if (error) {
-			Alert.alert('Login error', error.message);
+		if (upsertError) {
+			Alert.alert('Error creating profile', upsertError.message);
 			setLoading(false);
 			return;
 		}
 
-		// After login, check if profile exists and insert if missing
-		const user = data.user;
-		if (!user) {
-			Alert.alert('Login error', 'No user returned');
-			setLoading(false);
-			return;
-		}
-
-		const { data: profiles, error: profileError } = await supabase
-			.from('profiles')
-			.select('id, username')
-			.eq('id', user.id);
-
-		if (profileError) {
-			Alert.alert('Error checking profile', profileError.message);
-			setLoading(false);
-			return;
-		}
-
-		if (!profiles || profiles.length === 0 || !profiles[0].username) {
-			// Prompt for username
-			setLoading(false);
-			router.push({
-				pathname: '../setUsername',
-				params: { userId: user.id },
-			});
-			return;
-		}
-
+		setNewUsername('');
 		setLoading(false);
-		router.replace('/'); // Navigate to main app screen
+		router.replace('/');
 	};
 
 	return (
@@ -85,29 +70,19 @@ export default function LoginScreen() {
 						resizeMode="contain"
 					/>
 
-					<Text style={styles.title}>Log In</Text>
+					<Text style={styles.title}>Set Username</Text>
 
 					<TextInput
-						placeholder="Email"
-						value={email}
-						onChangeText={setEmail}
-						keyboardType="email-address"
+						placeholder="Username"
+						value={newUsername}
+						onChangeText={setNewUsername}
+						style={styles.input}
 						autoCapitalize="none"
-						style={styles.input}
-						placeholderTextColor={Colors.textAlt}
 					/>
 
-					<TextInput
-						placeholder="Password"
-						value={password}
-						onChangeText={setPassword}
-						secureTextEntry
-						style={styles.input}
-						placeholderTextColor={Colors.textAlt}
-					/>
 					<TouchableOpacity
 						style={styles.button}
-						onPress={handleLogin}
+						onPress={handleSetUsername}
 						disabled={loading}
 					>
 						{loading ? (
@@ -115,13 +90,6 @@ export default function LoginScreen() {
 						) : (
 							<Text style={styles.buttonText}>Log In</Text>
 						)}
-					</TouchableOpacity>
-
-					<TouchableOpacity onPress={() => router.replace('/signup')}>
-						<Text style={styles.linkText}>
-							Don't have an account?
-							<Text style={{ color: Colors.primary }}> Sign up</Text>
-						</Text>
 					</TouchableOpacity>
 				</View>
 			</ScrollView>

@@ -23,22 +23,7 @@ export default function SignUpScreen() {
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 
-	// Basic username validation
-	const isValidUsername = (name: string) => /^[a-zA-Z0-9_]{3,15}$/.test(name);
-
 	const handleSignUp = async () => {
-		if (!username) {
-			Alert.alert('Username is required');
-			return;
-		}
-		if (!isValidUsername(username)) {
-			Alert.alert(
-				'Invalid username',
-				'Username must be 3-15 characters and contain only letters, numbers, or underscores.'
-			);
-			return;
-		}
-
 		if (password !== confirmPassword) {
 			Alert.alert('Passwords do not match');
 			return;
@@ -74,22 +59,6 @@ export default function SignUpScreen() {
 				return;
 			}
 
-			// Use the user id from the signup response
-			if (!data.user?.id) {
-				Alert.alert('Could not fetch user ID to create profile');
-				return;
-			}
-
-			const { error: profileError } = await supabase.from('profiles').insert({
-				id: data.user.id,
-				username,
-			});
-
-			if (profileError) {
-				Alert.alert('Profile error', profileError.message);
-				return;
-			}
-
 			// Inform user to verify email before login
 			Alert.alert(
 				'Signup successful',
@@ -121,15 +90,6 @@ export default function SignUpScreen() {
 					/>
 
 					<Text style={styles.title}>Create Account</Text>
-
-					<TextInput
-						placeholder="Username"
-						value={username}
-						onChangeText={setUsername}
-						autoCapitalize="none"
-						style={styles.input}
-						placeholderTextColor={Colors.textAlt}
-					/>
 
 					<TextInput
 						placeholder="Email"

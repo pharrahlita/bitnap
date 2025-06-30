@@ -66,6 +66,10 @@ function LayoutWithAuth() {
 			<Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
 			<Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
 			<Stack.Screen
+				name="(auth)/setUsername"
+				options={{ headerShown: false }}
+			/>
+			<Stack.Screen
 				name="journalContents"
 				options={{
 					title: 'Dream Contents',
