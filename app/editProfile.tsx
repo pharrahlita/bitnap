@@ -188,7 +188,6 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.small,
 		color: Colors.textAlt,
 		marginBottom: 8,
-		marginTop: 16,
 	},
 	input: {
 		backgroundColor: Colors.backgroundAlt,
