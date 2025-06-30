@@ -37,10 +37,21 @@ export default function HomeScreen() {
 	const flatListDateRef = useRef<FlatList<any>>(null);
 
 	const fetchJournals = async () => {
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		const userId = user?.id;
+
+		if (!userId) {
+			setJournals([]); // or show a message, or redirect to login
+			return;
+		}
+
 		try {
 			const { data, error } = await supabase
 				.from('journals')
 				.select('*')
+				.eq('user_id', userId)
 				.order('date', { ascending: true });
 
 			if (error) {
