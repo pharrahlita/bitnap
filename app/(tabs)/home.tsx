@@ -90,11 +90,13 @@ export default function Profile() {
 		? journalEntries.filter((j) => j.user_id === buddyFilter)
 		: journalEntries;
 
-	const selfProfile = profiles.find((p) => p.id === userId);
+	const userIdsWithDreams = new Set(dreams.map((d) => d.user_id));
+	const filteredProfiles = profiles.filter((p) => userIdsWithDreams.has(p.id));
 
+	const selfProfile = filteredProfiles.find((p) => p.id === userId);
 	const avatarList = selfProfile
-		? [selfProfile, ...profiles.filter((p) => p.id !== userId)]
-		: profiles.filter((p) => p.id !== userId);
+		? [selfProfile, ...filteredProfiles.filter((p) => p.id !== userId)]
+		: filteredProfiles;
 
 	return (
 		<SafeAreaView style={styles.container}>
