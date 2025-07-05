@@ -20,6 +20,8 @@ export default function Profile() {
 	const [dreams, setDreams] = useState<any[]>([]);
 	const [profiles, setProfiles] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [userId, setUserId] = useState<string | undefined>(undefined);
+	const [buddyFilter, setBuddyFilter] = useState<string | null>(null);
 
 	const onRefresh = async () => {
 		setRefreshing(true);
@@ -34,24 +36,26 @@ export default function Profile() {
 		const {
 			data: { user },
 		} = await supabase.auth.getUser();
-		const userId = user?.id;
+
 		if (!user) {
 			setDreams([]);
 			setLoading(false);
 			return;
 		}
 
+		setUserId(user.id);
+
 		// 2. Get buddy user IDs
 		const { data: buddies } = await supabase
 			.from('buddies')
 			.select('user_id, buddy_id, status')
-			.or(`user_id.eq.${userId},buddy_id.eq.${userId}`)
+			.or(`user_id.eq.${user.id},buddy_id.eq.${user.id}`)
 			.eq('status', 'accepted');
 		const buddyIds = buddies
-			? buddies.map((b) => (b.user_id === userId ? b.buddy_id : b.user_id))
+			? buddies.map((b) => (b.user_id === user.id ? b.buddy_id : b.user_id))
 			: [];
 
-		const buddyAndSelfIds = [...buddyIds, userId];
+		const buddyAndSelfIds = [...buddyIds, user.id];
 
 		// 3. Fetch dreams from buddies
 		const { data: dreamsData, error } = await supabase
@@ -82,96 +86,152 @@ export default function Profile() {
 		tags: journal.tags ? journal.tags.split(',').filter(Boolean) : [],
 	}));
 
+	const filteredEntries = buddyFilter
+		? journalEntries.filter((j) => j.user_id === buddyFilter)
+		: journalEntries;
+
+	const selfProfile = profiles.find((p) => p.id === userId);
+
+	const avatarList = selfProfile
+		? [selfProfile, ...profiles.filter((p) => p.id !== userId)]
+		: profiles.filter((p) => p.id !== userId);
+
 	return (
 		<SafeAreaView style={styles.container}>
 			{loading ? (
 				<ActivityIndicator size="large" color="#fff" />
 			) : (
-				<FlatList
-					data={journalEntries}
-					keyExtractor={(item) => item.id}
-					ListEmptyComponent={
-						<Text style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}>
-							No dreams from your buddies yet.
-						</Text>
-					}
-					renderItem={({ item }) => {
-						const profile = profiles.find((p) => p.id === item.user_id);
+				<>
+					<FlatList
+						data={avatarList} // Exclude self if desired
+						horizontal
+						keyExtractor={(item) => item.id}
+						showsHorizontalScrollIndicator={false}
+						contentContainerStyle={{
+							paddingVertical: 12,
+							paddingHorizontal: 8,
+						}}
+						style={{ maxHeight: 80 }}
+						renderItem={({ item }) => {
+							const isSelected = buddyFilter === item.id;
+							return (
+								<TouchableOpacity
+									style={{ alignItems: 'center', marginRight: 16 }}
+									onPress={() => {
+										setBuddyFilter(buddyFilter === item.id ? null : item.id);
+									}}
+								>
+									<Image
+										source={
+											item.avatar_url
+												? { uri: item.avatar_url }
+												: require('@/assets/images/react-logo.png')
+										}
+										style={{
+											width: 56,
+											height: 56,
+											borderRadius: 28,
+											borderWidth: 2,
+											borderColor: isSelected
+												? Colors.primary
+												: Colors.backgroundAlt,
+											marginBottom: 4,
+										}}
+									/>
+								</TouchableOpacity>
+							);
+						}}
+					/>
+					<FlatList
+						data={filteredEntries}
+						keyExtractor={(item) => item.id}
+						ListEmptyComponent={
+							<Text
+								style={{ color: '#fff', textAlign: 'center', marginTop: 40 }}
+							>
+								No dreams from your buddies yet.
+							</Text>
+						}
+						renderItem={({ item }) => {
+							const profile = profiles.find((p) => p.id === item.user_id);
 
-						return (
-							<View>
-								<View style={styles.senderContainer}>
+							return (
+								<View>
+									<View style={styles.senderContainer}>
+										<TouchableOpacity
+											onPress={() =>
+												router.push({
+													pathname: '/otherProfile',
+													params: { userId: item.user_id },
+												})
+											}
+										>
+											<Image
+												source={
+													profile?.avatar_url
+														? { uri: profile.avatar_url }
+														: require('@/assets/images/react-logo.png')
+												}
+												style={styles.avatar}
+											/>
+										</TouchableOpacity>
+										<Text style={styles.username}>
+											{profile?.username || 'Unknown'} dreamed of...
+										</Text>
+									</View>
 									<TouchableOpacity
 										onPress={() =>
 											router.push({
-												pathname: '/otherProfile',
-												params: { userId: item.user_id },
+												pathname: '/journalContents',
+												params: item,
 											})
 										}
 									>
-										<Image
-											source={
-												profile?.avatar_url
-													? { uri: profile.avatar_url }
-													: require('@/assets/images/react-logo.png')
-											}
-											style={styles.avatar}
-										/>
+										<View style={styles.entryItemOuter}>
+											<View style={styles.entryRow}>
+												{/* Thumbnail */}
+												<Image
+													source={
+														item.thumbnail
+															? { uri: item.thumbnail }
+															: require('@/assets/images/bitnap_highres_logo.png')
+													}
+													style={styles.thumbnail}
+												/>
+												{/* Text */}
+												<View style={styles.entryContentCol}>
+													<Text style={styles.entryTitle}>{item.title}</Text>
+													<Text style={styles.entryContent}>
+														{item.content}
+													</Text>
+												</View>
+											</View>
+											{/* Date and tags on the same row at the bottom */}
+											<View style={styles.entryFooter}>
+												<View style={styles.tagContainer}>
+													{item.tags &&
+														item.tags.length > 0 &&
+														item.tags.map((tag: string, idx: number) => (
+															<Text style={styles.tag} key={idx}>
+																{tag}
+															</Text>
+														))}
+												</View>
+												<Text style={styles.entryDate}>
+													{format(new Date(item.created_at), 'MMM dd, yyyy')}{' '}
+													{'    >>'}
+												</Text>
+											</View>
+										</View>
 									</TouchableOpacity>
-									<Text style={styles.username}>
-										{profile?.username || 'Unknown'} dreamed of...
-									</Text>
 								</View>
-								<TouchableOpacity
-									onPress={() =>
-										router.push({
-											pathname: '/journalContents',
-											params: item,
-										})
-									}
-								>
-									<View style={styles.entryItemOuter}>
-										<View style={styles.entryRow}>
-											{/* Thumbnail */}
-											<Image
-												source={
-													item.thumbnail
-														? { uri: item.thumbnail }
-														: require('@/assets/images/bitnap_highres_logo.png')
-												}
-												style={styles.thumbnail}
-											/>
-											{/* Text */}
-											<View style={styles.entryContentCol}>
-												<Text style={styles.entryTitle}>{item.title}</Text>
-												<Text style={styles.entryContent}>{item.content}</Text>
-											</View>
-										</View>
-										{/* Date and tags on the same row at the bottom */}
-										<View style={styles.entryFooter}>
-											<View style={styles.tagContainer}>
-												{item.tags &&
-													item.tags.length > 0 &&
-													item.tags.map((tag: string, idx: number) => (
-														<Text style={styles.tag} key={idx}>
-															{tag}
-														</Text>
-													))}
-											</View>
-											<Text style={styles.entryDate}>
-												{format(new Date(item.created_at), 'MMM dd, yyyy')}{' '}
-												{'    >>'}
-											</Text>
-										</View>
-									</View>
-								</TouchableOpacity>
-							</View>
-						);
-					}}
-					style={styles.entryList}
-					refreshing={refreshing}
-					onRefresh={onRefresh}
-				/>
+							);
+						}}
+						style={styles.entryList}
+						refreshing={refreshing}
+						onRefresh={onRefresh}
+					/>
+				</>
 			)}
 		</SafeAreaView>
 	);
