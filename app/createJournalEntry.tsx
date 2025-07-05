@@ -10,6 +10,7 @@ import {
 	Platform,
 	ScrollView,
 	StyleSheet,
+	Switch,
 	Text,
 	TextInput,
 	TouchableOpacity,
@@ -37,6 +38,9 @@ export default function CreateJournalEntry() {
 	const [sleepQuality, setSleepQuality] = useState<number>(0);
 	const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 	const scrollViewRef = useRef<ScrollView>(null);
+	const [visibility, setVisibility] = useState<'private' | 'buddies'>(
+		'private'
+	);
 
 	// Character limits
 	const TITLE_LIMIT = 50;
@@ -99,6 +103,7 @@ export default function CreateJournalEntry() {
 					wake_time: wakeTime ? wakeTime.toISOString() : null,
 					tags: tagList.join(','),
 					sleep_quality: sleepQuality,
+					visibility,
 				},
 			]);
 
@@ -396,6 +401,38 @@ export default function CreateJournalEntry() {
 								</TouchableOpacity>
 							))}
 						</View>
+					</View>
+
+					<View
+						style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							marginBottom: 16,
+						}}
+					>
+						<Text
+							style={{
+								color: Colors.textOther,
+								fontFamily: Fonts.dogicaPixel,
+								fontSize: FontSizes.medium,
+								marginRight: 12,
+							}}
+						>
+							Share with dream buddies
+						</Text>
+						<Switch
+							value={visibility === 'buddies'}
+							onValueChange={(val) =>
+								setVisibility(val ? 'buddies' : 'private')
+							}
+							thumbColor={
+								visibility === 'buddies' ? Colors.primary : Colors.backgroundAlt
+							}
+							trackColor={{
+								false: Colors.backgroundAlt,
+								true: Colors.backgroundAlt,
+							}}
+						/>
 					</View>
 
 					<TouchableOpacity style={styles.button} onPress={handleSave}>
