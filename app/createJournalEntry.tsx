@@ -146,6 +146,7 @@ export default function CreateJournalEntry() {
 						onChangeText={(text) => setContents(text.slice(0, CONTENTS_LIMIT))}
 						maxLength={CONTENTS_LIMIT}
 						multiline
+						autoFocus
 					/>
 					<View style={styles.counterContainer}>
 						<Text style={styles.counterText}>
