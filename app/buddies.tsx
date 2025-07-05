@@ -171,6 +171,34 @@ export default function Buddies() {
 		);
 	};
 
+	const handleDeclineConfirmation = (buddyId: string) => {
+		const buddy = buddies.find((b) => b.id === buddyId);
+		const otherId = buddy ? getOtherUserId(buddy) : '';
+		const username = profiles[otherId]?.username || 'this user';
+		Alert.alert(
+			'Cancel Request',
+			`Are you sure you want to cancel your buddy request to ${username}?`,
+			[
+				{ text: 'Cancel', style: 'cancel' },
+				{
+					text: 'Remove',
+					style: 'destructive',
+					onPress: async () => {
+						const { error } = await supabase
+							.from('buddies')
+							.delete()
+							.eq('id', buddyId);
+						if (!error) {
+							setBuddies(buddies.filter((b) => b.id !== buddyId));
+						} else {
+							alert('Failed to remove buddy: ' + error.message);
+						}
+					},
+				},
+			]
+		);
+	};
+
 	if (loading) {
 		return <ActivityIndicator style={{ flex: 1 }} size="large" color="#fff" />;
 	}
@@ -290,7 +318,11 @@ export default function Buddies() {
 								</>
 							)}
 							{item.status === 'pending' && item.user_id === userId && (
-								<Text style={styles.pendingText}>Pending</Text>
+								<TouchableOpacity
+									onPress={() => handleDeclineConfirmation(item.id)}
+								>
+									<Text style={styles.pendingText}>Pending</Text>
+								</TouchableOpacity>
 							)}
 							{item.status === 'accepted' && (
 								<TouchableOpacity
