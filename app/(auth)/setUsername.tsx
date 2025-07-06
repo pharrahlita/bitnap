@@ -1,5 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -25,6 +27,7 @@ export default function SetUsernameScreen() {
 
 	const PLACEHOLDER_AVATAR_URL =
 		'https://vpbgjvtouzmiuunlvwff.supabase.co/storage/v1/object/public/avatars/default/default_avatar.png';
+	const [avatarUrl, setAvatarUrl] = useState(PLACEHOLDER_AVATAR_URL);
 
 	const isValidUsername = (name: string) => /^[a-zA-Z0-9_]{3,15}$/.test(name);
 
@@ -44,7 +47,7 @@ export default function SetUsernameScreen() {
 		const { error: upsertError } = await supabase.from('profiles').upsert({
 			id: params.userId,
 			username: newUsername,
-			avatar_url: PLACEHOLDER_AVATAR_URL,
+			avatar_url: avatarUrl || PLACEHOLDER_AVATAR_URL,
 		});
 
 		if (upsertError) {
@@ -58,6 +61,80 @@ export default function SetUsernameScreen() {
 		router.replace('/');
 	};
 
+	const pickImage = async () => {
+		try {
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ['images'],
+				allowsEditing: true,
+				quality: 1,
+			});
+
+			if (!result.canceled) {
+				const uri = result.assets[0].uri;
+				console.log('Picked image URI:', uri);
+				const publicUrl = await uploadAvatar(uri);
+
+				if (publicUrl) {
+					setAvatarUrl(publicUrl);
+				} else {
+					alert('Failed to get public URL');
+				}
+			}
+		} catch (err) {
+			console.error('Image pick/upload error:', err);
+			alert('Error: ' + err.message);
+		}
+	};
+
+	const uploadAvatar = async (uri: string) => {
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+		if (!user) throw new Error('No user');
+
+		let fileExt = uri.split('.').pop();
+		if (!fileExt || fileExt.length > 5) fileExt = 'jpg';
+		const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+		const contentType =
+			fileExt === 'png'
+				? 'image/png'
+				: fileExt === 'jpg' || fileExt === 'jpeg'
+				? 'image/jpeg'
+				: 'image/jpeg';
+
+		console.log('Uploading avatar:', { uri, fileName, contentType });
+
+		const { data: signedUrlData, error: signedUrlError } =
+			await supabase.storage.from('avatars').createSignedUploadUrl(fileName);
+
+		if (signedUrlError) {
+			console.error('Signed URL error:', signedUrlError);
+			throw signedUrlError;
+		}
+
+		const uploadRes = await FileSystem.uploadAsync(
+			signedUrlData.signedUrl,
+			uri,
+			{
+				httpMethod: 'PUT',
+				headers: {
+					'Content-Type': contentType,
+				},
+				uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+			}
+		);
+
+		console.log('Upload response:', uploadRes);
+
+		if (uploadRes.status !== 200) {
+			throw new Error('Failed to upload avatar');
+		}
+
+		const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+		console.log('Public URL:', data?.publicUrl);
+		return data.publicUrl;
+	};
+
 	return (
 		<KeyboardAvoidingView
 			style={{ flex: 1 }}
@@ -68,11 +145,20 @@ export default function SetUsernameScreen() {
 				keyboardShouldPersistTaps="handled"
 			>
 				<View style={styles.container}>
-					<Image
-						source={require('@/assets/images/bitnap_highres_logo.png')}
-						style={{ width: 200, height: 200, marginBottom: 25 }}
-						resizeMode="contain"
-					/>
+					<TouchableOpacity
+						style={styles.avatarButton}
+						onPress={pickImage}
+						disabled={loading}
+						activeOpacity={0.7}
+					>
+						<Image
+							source={
+								avatarUrl ? { uri: avatarUrl } : { uri: PLACEHOLDER_AVATAR_URL }
+							}
+							style={styles.avatar}
+						/>
+					</TouchableOpacity>
+					<Text style={styles.avatarHint}>Tap avatar to change</Text>
 
 					<Text style={styles.title}>Set Username</Text>
 
@@ -143,5 +229,25 @@ const styles = StyleSheet.create({
 		marginTop: 16,
 		fontFamily: Fonts.dogicaPixel,
 		fontSize: FontSizes.small,
+	},
+	avatar: {
+		width: 125,
+		height: 125,
+		borderRadius: 360,
+		alignSelf: 'center',
+		marginTop: 16,
+		backgroundColor: Colors.backgroundAlt,
+	},
+	avatarButton: {
+		alignSelf: 'center',
+		marginTop: 24,
+		marginBottom: 8,
+	},
+	avatarHint: {
+		textAlign: 'center',
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textAlt,
+		marginBottom: 48,
 	},
 });

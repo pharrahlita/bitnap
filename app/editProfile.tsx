@@ -64,7 +64,6 @@ export default function EditProfile() {
 
 				if (publicUrl) {
 					setAvatarUrl(publicUrl);
-					alert('Avatar updated successfully');
 				} else {
 					alert('Failed to get public URL');
 				}
@@ -151,7 +150,6 @@ export default function EditProfile() {
 		if (error) {
 			Alert.alert('Update failed', error.message);
 		} else {
-			Alert.alert('Profile updated');
 			router.back();
 		}
 	};
@@ -174,6 +172,7 @@ export default function EditProfile() {
 				/>
 			</TouchableOpacity>
 			<Text style={styles.avatarHint}>Tap avatar to change</Text>
+
 			<Text style={styles.label}>Username</Text>
 			<TextInput
 				style={styles.input}
@@ -236,11 +235,12 @@ const styles = StyleSheet.create({
 		fontSize: FontSizes.medium,
 	},
 	avatar: {
-		width: 100,
-		height: 100,
-		borderRadius: 50,
+		width: 125,
+		height: 125,
+		borderRadius: 360,
 		alignSelf: 'center',
 		marginTop: 16,
+		backgroundColor: Colors.backgroundAlt,
 	},
 	avatarButton: {
 		alignSelf: 'center',
@@ -252,6 +252,6 @@ const styles = StyleSheet.create({
 		fontFamily: Fonts.dogicaPixel,
 		fontSize: FontSizes.small,
 		color: Colors.textAlt,
-		marginBottom: 8,
+		marginBottom: 48,
 	},
 });
