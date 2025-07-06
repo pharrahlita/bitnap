@@ -1,7 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
-import * as FileSystem from 'expo-file-system';
-import * as ImagePicker from 'expo-image-picker';
+import { pickImage } from '@/utils/pickImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -61,78 +60,10 @@ export default function SetUsernameScreen() {
 		router.replace('/');
 	};
 
-	const pickImage = async () => {
-		try {
-			const result = await ImagePicker.launchImageLibraryAsync({
-				mediaTypes: ['images'],
-				allowsEditing: true,
-				quality: 1,
-			});
-
-			if (!result.canceled) {
-				const uri = result.assets[0].uri;
-				console.log('Picked image URI:', uri);
-				const publicUrl = await uploadAvatar(uri);
-
-				if (publicUrl) {
-					setAvatarUrl(publicUrl);
-				} else {
-					alert('Failed to get public URL');
-				}
-			}
-		} catch (err) {
-			console.error('Image pick/upload error:', err);
-			alert('Error: ' + err.message);
-		}
-	};
-
-	const uploadAvatar = async (uri: string) => {
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
-		if (!user) throw new Error('No user');
-
-		let fileExt = uri.split('.').pop();
-		if (!fileExt || fileExt.length > 5) fileExt = 'jpg';
-		const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-		const contentType =
-			fileExt === 'png'
-				? 'image/png'
-				: fileExt === 'jpg' || fileExt === 'jpeg'
-				? 'image/jpeg'
-				: 'image/jpeg';
-
-		console.log('Uploading avatar:', { uri, fileName, contentType });
-
-		const { data: signedUrlData, error: signedUrlError } =
-			await supabase.storage.from('avatars').createSignedUploadUrl(fileName);
-
-		if (signedUrlError) {
-			console.error('Signed URL error:', signedUrlError);
-			throw signedUrlError;
-		}
-
-		const uploadRes = await FileSystem.uploadAsync(
-			signedUrlData.signedUrl,
-			uri,
-			{
-				httpMethod: 'PUT',
-				headers: {
-					'Content-Type': contentType,
-				},
-				uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-			}
-		);
-
-		console.log('Upload response:', uploadRes);
-
-		if (uploadRes.status !== 200) {
-			throw new Error('Failed to upload avatar');
-		}
-
-		const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-		console.log('Public URL:', data?.publicUrl);
-		return data.publicUrl;
+	const handlePick = async () => {
+		const publicUrl = await pickImage();
+		if (publicUrl) setAvatarUrl(publicUrl);
+		else alert('Failed to get public URL');
 	};
 
 	return (
@@ -147,7 +78,7 @@ export default function SetUsernameScreen() {
 				<View style={styles.container}>
 					<TouchableOpacity
 						style={styles.avatarButton}
-						onPress={pickImage}
+						onPress={handlePick}
 						disabled={loading}
 						activeOpacity={0.7}
 					>
