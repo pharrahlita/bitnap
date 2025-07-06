@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
+import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -49,18 +50,28 @@ export default function EditProfile() {
 	}, []);
 
 	const pickImage = async () => {
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ['images'],
-			allowsEditing: true,
-			quality: 1,
-		});
+		try {
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ['images'],
+				allowsEditing: true,
+				quality: 1,
+			});
 
-		if (!result.canceled) {
-			const uri = result.assets[0].uri;
-			const publicUrl = await uploadAvatar(uri);
+			if (!result.canceled) {
+				const uri = result.assets[0].uri;
+				console.log('Picked image URI:', uri);
+				const publicUrl = await uploadAvatar(uri);
 
-			if (publicUrl) setAvatarUrl(publicUrl);
-			alert('Avatar updated successfully');
+				if (publicUrl) {
+					setAvatarUrl(publicUrl);
+					alert('Avatar updated successfully');
+				} else {
+					alert('Failed to get public URL');
+				}
+			}
+		} catch (err) {
+			console.error('Image pick/upload error:', err);
+			alert('Error: ' + err.message);
 		}
 	};
 
@@ -70,32 +81,46 @@ export default function EditProfile() {
 		} = await supabase.auth.getUser();
 		if (!user) throw new Error('No user');
 
-		const fileExt = uri.split('.').pop();
-		const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+		let fileExt = uri.split('.').pop();
+		if (!fileExt || fileExt.length > 5) fileExt = 'jpg';
+		const fileName = `${user.id}.${fileExt}`;
 		const contentType =
 			fileExt === 'png'
 				? 'image/png'
 				: fileExt === 'jpg' || fileExt === 'jpeg'
 				? 'image/jpeg'
-				: 'application/octet-stream';
+				: 'image/jpeg';
 
-		// Use fetch to get the Blob from the local file URI
-		const response = await fetch(uri);
-		const blob = await response.blob();
+		console.log('Uploading avatar:', { uri, fileName, contentType });
 
-		// Check blob size for debugging
-		console.log('Blob size:', blob.size);
+		const { data: signedUrlData, error: signedUrlError } =
+			await supabase.storage.from('avatars').createSignedUploadUrl(fileName);
 
-		const { error: uploadError } = await supabase.storage
-			.from('avatars')
-			.upload(fileName, blob, {
-				upsert: true,
-				contentType,
-			});
+		if (signedUrlError) {
+			console.error('Signed URL error:', signedUrlError);
+			throw signedUrlError;
+		}
 
-		if (uploadError) throw uploadError;
+		const uploadRes = await FileSystem.uploadAsync(
+			signedUrlData.signedUrl,
+			uri,
+			{
+				httpMethod: 'PUT',
+				headers: {
+					'Content-Type': contentType,
+				},
+				uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+			}
+		);
+
+		console.log('Upload response:', uploadRes);
+
+		if (uploadRes.status !== 200) {
+			throw new Error('Failed to upload avatar');
+		}
 
 		const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+		console.log('Public URL:', data?.publicUrl);
 		return data.publicUrl;
 	};
 
