@@ -1,36 +1,36 @@
+import { supabase } from '@/lib/supabase';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
 
-const AuthContext = createContext();
+const AuthContext = createContext({ user: null, loading: true });
 
-export const AuthProvider = ({ children }) => {
-	const [session, setSession] = useState(null);
+export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		const init = async () => {
-			const {
-				data: { session },
-			} = await supabase.auth.getSession();
-			setSession(session);
-			setUser(session?.user ?? null);
+		// Check for existing session on mount
+		supabase.auth.getUser().then(({ data: { user } }) => {
+			setUser(user);
 			setLoading(false);
+		});
 
-			supabase.auth.onAuthStateChange((_event, session) => {
-				setSession(session);
+		// Listen for auth state changes (login/logout)
+		const { data: listener } = supabase.auth.onAuthStateChange(
+			(_event, session) => {
 				setUser(session?.user ?? null);
-			});
-		};
+			}
+		);
 
-		init();
+		return () => {
+			listener?.subscription.unsubscribe();
+		};
 	}, []);
 
 	return (
-		<AuthContext.Provider value={{ session, user, loading }}>
+		<AuthContext.Provider value={{ user, loading }}>
 			{children}
 		</AuthContext.Provider>
 	);
-};
+}
 
 export const useAuth = () => useContext(AuthContext);
