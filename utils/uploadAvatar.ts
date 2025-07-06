@@ -16,7 +16,7 @@ export async function uploadAvatar(
 
 	let fileExt = uri.split('.').pop();
 	if (!fileExt || fileExt.length > 5) fileExt = 'jpg';
-	const fileName = `${user_id}_${Date.now()}.${fileExt}`;
+	const fileName = `${user_id}/avatar_${Date.now()}.${fileExt}`;
 	const contentType =
 		fileExt === 'png'
 			? 'image/png'
