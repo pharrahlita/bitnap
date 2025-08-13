@@ -40,16 +40,30 @@ export default function RootLayout() {
 }
 
 function LayoutWithAuth() {
-	const { user, loading } = useAuth();
+	const { user, loading, serverDown } = useAuth();
 	const router = useRouter();
 
 	useEffect(() => {
+		console.log('LayoutWithAuth: State changed:', {
+			user: !!user,
+			loading,
+			serverDown,
+		});
+
 		if (!loading) {
-			if (!user) {
+			if (serverDown) {
+				console.log('LayoutWithAuth: Redirecting to maintenance page');
+				router.replace('/maintenance');
+			} else if (!user) {
+				console.log('LayoutWithAuth: Redirecting to welcome page');
 				router.replace('/welcome');
+			} else {
+				console.log(
+					'LayoutWithAuth: User is logged in, staying on current page'
+				);
 			}
 		}
-	}, [user, loading, router]);
+	}, [user, loading, serverDown, router]);
 
 	if (loading) {
 		return (
@@ -69,6 +83,7 @@ function LayoutWithAuth() {
 				name="(auth)/setUsername"
 				options={{ headerShown: false }}
 			/>
+			<Stack.Screen name="maintenance" options={{ headerShown: false }} />
 			<Stack.Screen
 				name="journalContents"
 				options={{

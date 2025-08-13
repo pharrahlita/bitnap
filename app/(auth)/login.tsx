@@ -25,48 +25,90 @@ export default function LoginScreen() {
 
 	const handleLogin = async () => {
 		setLoading(true);
-		const { data, error } = await supabase.auth.signInWithPassword({
-			email,
-			password,
-		});
 
-		if (error) {
-			Alert.alert('Login error', error.message);
-			setLoading(false);
-			return;
-		}
-
-		// After login, check if profile exists and insert if missing
-		const user = data.user;
-		if (!user) {
-			Alert.alert('Login error', 'No user returned');
-			setLoading(false);
-			return;
-		}
-
-		const { data: profiles, error: profileError } = await supabase
-			.from('profiles')
-			.select('id, username')
-			.eq('id', user.id);
-
-		if (profileError) {
-			Alert.alert('Error checking profile', profileError.message);
-			setLoading(false);
-			return;
-		}
-
-		if (!profiles || profiles.length === 0 || !profiles[0].username) {
-			// Prompt for username
-			setLoading(false);
-			router.push({
-				pathname: '../setUsername',
-				params: { userId: user.id },
+		try {
+			const { data, error } = await supabase.auth.signInWithPassword({
+				email,
+				password,
 			});
-			return;
-		}
 
-		setLoading(false);
-		router.replace('/'); // Navigate to main app screen
+			if (error) {
+				// Check for network/connection errors by status code
+				if (
+					error.status === 0 || // Network error
+					error.status >= 500 || // Server errors
+					error.message.includes('Failed to fetch') ||
+					error.message.includes('NetworkError') ||
+					error.message.includes('NETWORK_ERROR')
+				) {
+					Alert.alert(
+						'Connection Error',
+						'Unable to connect to the server. Please check your internet connection or try again later. The app may be down for maintenance.'
+					);
+				} else if (error.status === 400) {
+					Alert.alert('Login Failed', 'Invalid email or password.');
+				} else if (error.status === 429) {
+					Alert.alert(
+						'Too Many Attempts',
+						'Please wait a moment before trying again.'
+					);
+				} else {
+					Alert.alert('Login Error', error.message);
+				}
+				setLoading(false);
+				return;
+			}
+
+			// Rest of your login logic...
+			const user = data.user;
+			if (!user) {
+				Alert.alert('Login error', 'No user returned');
+				setLoading(false);
+				return;
+			}
+
+			const { data: profiles, error: profileError } = await supabase
+				.from('profiles')
+				.select('id, username')
+				.eq('id', user.id);
+
+			if (profileError) {
+				// Handle profile check errors with status codes too
+				if (profileError.code === 'PGRST301' || profileError.code === '42P01') {
+					Alert.alert(
+						'Setup Error',
+						'Database is being set up. Please try again in a moment.'
+					);
+				} else {
+					Alert.alert('Error checking profile', profileError.message);
+				}
+				setLoading(false);
+				return;
+			}
+
+			if (!profiles || profiles.length === 0 || !profiles[0].username) {
+				setLoading(false);
+				router.push({
+					pathname: '../setUsername',
+					params: { userId: user.id },
+				});
+				return;
+			}
+
+			setLoading(false);
+			router.replace('/');
+		} catch (err: any) {
+			setLoading(false);
+			// Network errors often don't have status codes in the catch block
+			if (!navigator.onLine) {
+				Alert.alert('No Internet', 'Please check your internet connection.');
+			} else {
+				Alert.alert(
+					'Connection Error',
+					'Unable to connect to the server. The app may be down for maintenance.'
+				);
+			}
+		}
 	};
 
 	return (
