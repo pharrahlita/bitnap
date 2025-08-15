@@ -2,7 +2,6 @@ import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { pickImage } from '@/utils/pickImage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -59,30 +58,12 @@ export default function SettingsScreen() {
 		}
 	};
 
-	const handleAvatarChange = async () => {
-		try {
-			const publicUrl = await pickImage();
-			if (publicUrl && user) {
-				// Update profile with new avatar
-				const { error } = await supabase
-					.from('profiles')
-					.update({ avatar_url: publicUrl })
-					.eq('id', profile.id);
-
-				if (error) {
-					Alert.alert('Error', 'Failed to update avatar');
-				} else {
-					setProfile({ ...profile, avatar_url: publicUrl });
-					Alert.alert('Success', 'Avatar updated successfully');
-				}
-			}
-		} catch (err) {
-			Alert.alert('Error', 'Failed to update avatar');
-		}
-	};
-
 	const handleEditProfile = () => {
 		router.push('/editProfile');
+	};
+
+	const handleChangePassword = () => {
+		router.push('/changePassword');
 	};
 
 	const handleSignOut = async () => {
@@ -186,16 +167,7 @@ export default function SettingsScreen() {
 						subtitle="Update your profile information"
 						onPress={handleEditProfile}
 					/>
-					<SettingItem
-						title="Change Password"
-						onPress={() => {
-							// TODO: Implement password change
-							Alert.alert(
-								'Coming Soon',
-								'Password change will be available soon.'
-							);
-						}}
-					/>
+					<SettingItem title="Change Password" onPress={handleChangePassword} />
 				</View>
 
 				{/* App Settings */}

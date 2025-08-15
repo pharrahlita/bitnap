@@ -147,6 +147,50 @@ function LayoutWithAuth() {
 					),
 				}}
 			/>
+			<Stack.Screen
+				name="changePassword"
+				options={{
+					title: 'Change Password',
+					presentation: 'card',
+					headerShown: true,
+					headerBackTitle: 'Back',
+					headerTintColor: Colors.primary,
+					headerTitleStyle: {
+						color: Colors.text,
+						fontFamily: Fonts.dogicaPixelBold,
+					},
+					headerBackground: () => (
+						<View
+							style={{
+								backgroundColor: Colors.backgroundAlt,
+								flex: 1,
+							}}
+						/>
+					),
+				}}
+			/>
+			<Stack.Screen
+				name="editProfile"
+				options={{
+					title: 'Edit Profile',
+					presentation: 'card',
+					headerShown: true,
+					headerBackTitle: 'Back',
+					headerTintColor: Colors.primary,
+					headerTitleStyle: {
+						color: Colors.text,
+						fontFamily: Fonts.dogicaPixelBold,
+					},
+					headerBackground: () => (
+						<View
+							style={{
+								backgroundColor: Colors.backgroundAlt,
+								flex: 1,
+							}}
+						/>
+					),
+				}}
+			/>
 			<Stack.Screen name="+not-found" />
 		</Stack>
 	);

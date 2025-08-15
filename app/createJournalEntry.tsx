@@ -463,16 +463,16 @@ const styles = StyleSheet.create({
 		color: Colors.primary,
 		fontSize: FontSizes.large,
 	},
+	textArea: {
+		height: 100,
+		textAlignVertical: 'top',
+		lineHeight: LineHeights.medium,
+	},
 	subHeading: {
 		margin: 4,
 		color: Colors.textOther,
 		fontFamily: Fonts.dogicaPixel,
 		fontSize: FontSizes.medium,
-	},
-	textArea: {
-		height: 100,
-		textAlignVertical: 'top',
-		lineHeight: LineHeights.medium,
 	},
 	horizontalPickerContainer: {
 		backgroundColor: Colors.backgroundAlt,
