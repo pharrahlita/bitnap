@@ -381,19 +381,6 @@ export default function HomeScreen() {
 					key={layoutMode}
 				/>
 			)}
-
-			{/* Add Button */}
-			<TouchableOpacity
-				style={styles.addButton}
-				onPress={() => navigation.navigate('createJournalEntry')}
-				activeOpacity={0.75}
-				accessibilityLabel="Add Journal Entry"
-			>
-				<Image
-					source={require('@/assets/images/icons/edit.png')}
-					style={{ height: 48, width: 48, tintColor: '#fff' }}
-				/>
-			</TouchableOpacity>
 		</SafeAreaView>
 	);
 }
@@ -535,22 +522,6 @@ const styles = StyleSheet.create({
 	selectedDate: {
 		backgroundColor: Colors.primary,
 		borderRadius: 8,
-	},
-	addButton: {
-		position: 'absolute',
-		bottom: 100,
-		right: 20,
-		width: 64,
-		height: 64,
-		borderRadius: 8,
-		backgroundColor: Colors.primary,
-		justifyContent: 'center',
-		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.25,
-		shadowRadius: 3.84,
-		elevation: 5,
 	},
 	gridList: {
 		flex: 1,
