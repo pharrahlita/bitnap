@@ -31,48 +31,12 @@ export default function TabLayout() {
 			}}
 		>
 			<Tabs.Screen
-				name="home"
-				options={{
-					title: 'Home',
-					tabBarIcon: ({ focused }) => (
-						<Image
-							source={require('@/assets/images/icons/star.png')}
-							style={{
-								width: 36,
-								height: 36,
-								marginTop: 25,
-								tintColor: focused ? '#fff' : undefined,
-							}}
-							resizeMode="contain"
-						/>
-					),
-				}}
-			/>
-			<Tabs.Screen
 				name="index"
 				options={{
 					title: 'Journal',
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={require('@/assets/images/icons/journal.png')}
-							style={{
-								width: 36,
-								height: 36,
-								marginTop: 25,
-								tintColor: focused ? '#fff' : undefined,
-							}}
-							resizeMode="contain"
-						/>
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="profile"
-				options={{
-					title: 'Profile',
-					tabBarIcon: ({ focused }) => (
-						<Image
-							source={require('@/assets/images/icons/user.png')}
 							style={{
 								width: 36,
 								height: 36,
