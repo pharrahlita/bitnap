@@ -48,6 +48,24 @@ export default function TabLayout() {
 					),
 				}}
 			/>
+			<Tabs.Screen
+				name="settings"
+				options={{
+					title: 'Settings',
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={require('@/assets/images/icons/user.png')}
+							style={{
+								width: 36,
+								height: 36,
+								marginTop: 25,
+								tintColor: focused ? '#fff' : undefined,
+							}}
+							resizeMode="contain"
+						/>
+					),
+				}}
+			/>
 		</Tabs>
 	);
 }
