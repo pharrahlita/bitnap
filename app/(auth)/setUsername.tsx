@@ -1,12 +1,10 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes } from '@/constants/Font';
-import { pickImage } from '@/utils/pickImage';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
 	ActivityIndicator,
 	Alert,
-	Image,
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
@@ -26,7 +24,6 @@ export default function SetUsernameScreen() {
 
 	const PLACEHOLDER_AVATAR_URL =
 		'https://vpbgjvtouzmiuunlvwff.supabase.co/storage/v1/object/public/avatars/default/default_avatar.png';
-	const [avatarUrl, setAvatarUrl] = useState(PLACEHOLDER_AVATAR_URL);
 
 	const isValidUsername = (name: string) => /^[a-zA-Z0-9_]{3,15}$/.test(name);
 
@@ -46,7 +43,7 @@ export default function SetUsernameScreen() {
 		const { error: upsertError } = await supabase.from('profiles').upsert({
 			id: params.userId,
 			username: newUsername,
-			avatar_url: avatarUrl || PLACEHOLDER_AVATAR_URL,
+			avatar_url: PLACEHOLDER_AVATAR_URL,
 		});
 
 		if (upsertError) {
@@ -60,12 +57,6 @@ export default function SetUsernameScreen() {
 		router.replace('/');
 	};
 
-	const handlePick = async () => {
-		const publicUrl = await pickImage();
-		if (publicUrl) setAvatarUrl(publicUrl);
-		else alert('Failed to get public URL');
-	};
-
 	return (
 		<KeyboardAvoidingView
 			style={{ flex: 1 }}
@@ -76,21 +67,6 @@ export default function SetUsernameScreen() {
 				keyboardShouldPersistTaps="handled"
 			>
 				<View style={styles.container}>
-					<TouchableOpacity
-						style={styles.avatarButton}
-						onPress={handlePick}
-						disabled={loading}
-						activeOpacity={0.7}
-					>
-						<Image
-							source={
-								avatarUrl ? { uri: avatarUrl } : { uri: PLACEHOLDER_AVATAR_URL }
-							}
-							style={styles.avatar}
-						/>
-					</TouchableOpacity>
-					<Text style={styles.avatarHint}>Tap avatar to change</Text>
-
 					<Text style={styles.title}>Set Username</Text>
 
 					<TextInput
