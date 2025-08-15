@@ -374,7 +374,6 @@ const styles = StyleSheet.create({
 		marginLeft: 8,
 	},
 	footer: {
-		alignItems: 'center',
 		padding: 24,
 	},
 	version: {
