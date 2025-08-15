@@ -22,6 +22,27 @@ export default function ChangePasswordScreen() {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 
+	const getPasswordStrength = (password: string) => {
+		if (password.length === 0)
+			return { level: 0, text: '', color: Colors.textAlt };
+		if (password.length < 6)
+			return { level: 20, text: 'Too Short', color: '#ff4444' };
+		if (password.length < 8)
+			return { level: 40, text: 'Weak', color: '#ff8800' };
+
+		let score = 40;
+		if (/[a-z]/.test(password)) score += 15;
+		if (/[A-Z]/.test(password)) score += 15;
+		if (/[0-9]/.test(password)) score += 15;
+		if (/[^a-zA-Z0-9]/.test(password)) score += 15;
+
+		if (score < 60) return { level: score, text: 'Fair', color: '#ffaa00' };
+		if (score < 85) return { level: score, text: 'Good', color: '#88cc00' };
+		return { level: 100, text: 'Strong', color: '#00cc44' };
+	};
+
+	const passwordStrength = getPasswordStrength(newPassword);
+
 	const validatePasswords = () => {
 		if (
 			!currentPassword.trim() ||
@@ -147,6 +168,88 @@ export default function ChangePasswordScreen() {
 							autoCorrect={false}
 						/>
 
+						{/* Password Strength Indicator */}
+						{newPassword.length > 0 && (
+							<View style={styles.strengthContainer}>
+								<View style={styles.strengthBar}>
+									<View
+										style={[
+											styles.strengthFill,
+											{
+												width: `${passwordStrength.level}%`,
+												backgroundColor: passwordStrength.color,
+											},
+										]}
+									/>
+								</View>
+								<Text
+									style={[
+										styles.strengthText,
+										{ color: passwordStrength.color },
+									]}
+								>
+									{passwordStrength.text}
+								</Text>
+							</View>
+						)}
+
+						{/* Password Requirements */}
+						{newPassword.length > 0 && (
+							<View style={styles.requirementsContainer}>
+								<Text style={styles.requirementsTitle}>
+									Password Requirements:
+								</Text>
+								<View style={styles.requirement}>
+									<Text
+										style={[
+											styles.requirementText,
+											newPassword.length >= 6
+												? styles.requirementMet
+												: styles.requirementUnmet,
+										]}
+									>
+										{newPassword.length >= 6 ? '✓' : '×'} At least 6 characters
+									</Text>
+								</View>
+								<View style={styles.requirement}>
+									<Text
+										style={[
+											styles.requirementText,
+											/[a-z]/.test(newPassword)
+												? styles.requirementMet
+												: styles.requirementUnmet,
+										]}
+									>
+										{/[a-z]/.test(newPassword) ? '✓' : '×'} Lowercase letter
+									</Text>
+								</View>
+								<View style={styles.requirement}>
+									<Text
+										style={[
+											styles.requirementText,
+											/[A-Z]/.test(newPassword)
+												? styles.requirementMet
+												: styles.requirementUnmet,
+										]}
+									>
+										{/[A-Z]/.test(newPassword) ? '✓' : '×'} Uppercase letter
+									</Text>
+								</View>
+								<View style={styles.requirement}>
+									<Text
+										style={[
+											styles.requirementText,
+											/[0-9]/.test(newPassword)
+												? styles.requirementMet
+												: styles.requirementUnmet,
+										]}
+									>
+										{/[0-9]/.test(newPassword) ? '✓' : '×'} Number
+									</Text>
+								</View>
+							</View>
+						)}
+
 						<Text style={styles.label}>Confirm New Password</Text>
 						<TextInput
 							style={[
@@ -223,9 +326,9 @@ const styles = StyleSheet.create({
 	input: {
 		backgroundColor: Colors.backgroundAlt,
 		color: Colors.textOther,
-		padding: 10,
+		padding: 12,
 		borderRadius: 8,
-		fontSize: 16, // Regular readable font size
+		fontSize: 16,
 		borderWidth: 1,
 		borderColor: 'transparent',
 	},
@@ -239,6 +342,53 @@ const styles = StyleSheet.create({
 		color: '#ff4444',
 		marginTop: 4,
 		marginBottom: 8,
+	},
+	strengthContainer: {
+		marginTop: 8,
+		marginBottom: 12,
+	},
+	strengthBar: {
+		height: 4,
+		backgroundColor: Colors.backgroundAlt,
+		borderRadius: 2,
+		overflow: 'hidden',
+		marginBottom: 6,
+	},
+	strengthFill: {
+		height: '100%',
+		borderRadius: 2,
+		transition: 'width 0.3s ease',
+	},
+	strengthText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		textAlign: 'right',
+	},
+	requirementsContainer: {
+		backgroundColor: Colors.backgroundAlt,
+		padding: 12,
+		borderRadius: 6,
+		marginTop: 8,
+		marginBottom: 8,
+	},
+	requirementsTitle: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.text,
+		marginBottom: 6,
+	},
+	requirement: {
+		marginBottom: 2,
+	},
+	requirementText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+	},
+	requirementMet: {
+		color: '#00cc44',
+	},
+	requirementUnmet: {
+		color: Colors.textAlt,
 	},
 	button: {
 		backgroundColor: Colors.primary,
