@@ -52,7 +52,7 @@ export default function HomeScreen() {
 				.from('journals')
 				.select('*')
 				.eq('user_id', userId)
-				.order('date', { ascending: true });
+				.order('date', { ascending: false });
 
 			if (error) {
 				console.error('Error fetching journals:', error);
@@ -135,7 +135,7 @@ export default function HomeScreen() {
 
 	const generateDates = () => {
 		const sortedEntries = journalEntries.sort(
-			(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+			(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
 		);
 
 		const uniqueDates = new Set();
