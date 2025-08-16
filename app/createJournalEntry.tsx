@@ -50,6 +50,7 @@ export default function CreateJournalEntry() {
 	const [hasDraft, setHasDraft] = useState(false);
 	const [lastSaved, setLastSaved] = useState<Date | null>(null);
 	const draftSaveTimeoutRef = useRef<any>(null);
+	const [isSavingEntry, setIsSavingEntry] = useState(false);
 
 	// Character limits
 	const TITLE_LIMIT = 50;
@@ -62,6 +63,7 @@ export default function CreateJournalEntry() {
 			await AsyncStorage.removeItem(DRAFT_KEY);
 			setHasDraft(false);
 			setLastSaved(null);
+			console.log('Draft cleared successfully');
 		} catch (error) {
 			console.error('Error clearing draft:', error);
 		}
@@ -86,8 +88,10 @@ export default function CreateJournalEntry() {
 	const loadDraft = useCallback(async () => {
 		try {
 			const draftData = await AsyncStorage.getItem(DRAFT_KEY);
+			console.log('Loading draft data:', draftData ? 'Draft found' : 'No draft found');
 			if (draftData) {
 				const draft = JSON.parse(draftData);
+				console.log('Draft content:', { title: draft.title, hasContent: !!draft.content });
 				// Auto-load the draft without asking
 				restoreDraft(draft);
 				setHasDraft(true);
@@ -107,8 +111,8 @@ export default function CreateJournalEntry() {
 			clearTimeout(draftSaveTimeoutRef.current);
 		}
 
-		// Only auto-save if draft is loaded and there's content
-		if (!isDraftLoaded) return;
+		// Don't auto-save if we're currently saving an entry or draft not loaded
+		if (!isDraftLoaded || isSavingEntry) return;
 
 		const hasContent =
 			title.trim() ||
@@ -146,6 +150,7 @@ export default function CreateJournalEntry() {
 		}, DRAFT_SAVE_DELAY);
 	}, [
 		isDraftLoaded,
+		isSavingEntry,
 		title,
 		contents,
 		interpretation,
@@ -183,6 +188,9 @@ export default function CreateJournalEntry() {
 		useCallback(() => {
 			return () => {
 				// This runs when screen loses focus
+				// Don't save if we're currently saving an entry or have no content
+				if (isSavingEntry) return;
+				
 				const hasContent =
 					title.trim() ||
 					contents.trim() ||
@@ -230,6 +238,7 @@ export default function CreateJournalEntry() {
 			sleepQuality,
 			visibility,
 			isDraftLoaded,
+			isSavingEntry,
 		])
 	);
 
@@ -251,6 +260,9 @@ export default function CreateJournalEntry() {
 	};
 
 	const handleSave = async () => {
+		// Set flag to prevent auto-saving while we're saving
+		setIsSavingEntry(true);
+		
 		// Validation for mandatory fields
 		const missingFields = [];
 		if (!title.trim()) missingFields.push('Title');
@@ -259,6 +271,7 @@ export default function CreateJournalEntry() {
 		if (!dreamType) missingFields.push('Type');
 
 		if (missingFields.length > 0) {
+			setIsSavingEntry(false);
 			Alert.alert(
 				'Missing Required Fields',
 				`Please fill in the following: ${missingFields.join(', ')}`
@@ -294,21 +307,47 @@ export default function CreateJournalEntry() {
 
 			if (error) {
 				console.error('Error inserting journal:', error);
+				setIsSavingEntry(false);
 				Alert.alert('Error', 'Failed to save journal entry. Please try again.');
 				return;
+			}
+
+			// Clear auto-save timeout to prevent saving after successful submission
+			if (draftSaveTimeoutRef.current) {
+				clearTimeout(draftSaveTimeoutRef.current);
 			}
 
 			// Clear draft after successful save
 			await clearDraft();
 
+			// Reset form to initial state
+			setTitle('');
+			setContents('');
+			setDreamType('Standard');
+			setDate(new Date());
+			setInterpretation('');
+			setMoodBefore('');
+			setMoodAfter('');
+			setFeelings('');
+			setSleepTime(null);
+			setWakeTime(null);
+			setTagList([]);
+			setSleepQuality(0);
+			setVisibility('private');
+			setTags('');
+
 			Alert.alert('Success', 'Journal entry saved successfully!', [
 				{
 					text: 'OK',
-					onPress: () => navigation.goBack(),
+					onPress: () => {
+						setIsSavingEntry(false); // Reset flag after navigation
+						navigation.goBack();
+					},
 				},
 			]);
 		} catch (err) {
 			console.error('Unexpected error:', err);
+			setIsSavingEntry(false);
 			Alert.alert('Error', 'An unexpected error occurred. Please try again.');
 		}
 	};
