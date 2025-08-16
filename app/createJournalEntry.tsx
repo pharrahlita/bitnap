@@ -2,8 +2,9 @@ import { Collapsible } from '@/components/Collapsible';
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes, LineHeights } from '@/constants/Font';
 import { supabase } from '@/lib/supabase';
-import { useNavigation } from '@react-navigation/native';
-import React, { useRef, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Alert,
 	KeyboardAvoidingView,
@@ -16,8 +17,10 @@ import {
 	TouchableOpacity,
 	View,
 } from 'react-native';
-
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+
+const DRAFT_KEY = 'journal_draft';
+const DRAFT_SAVE_DELAY = 2000; // Save draft 2 seconds after user stops typing
 
 export default function CreateJournalEntry() {
 	const navigation = useNavigation();
@@ -42,11 +45,193 @@ export default function CreateJournalEntry() {
 		'private'
 	);
 
+	// Draft saving states
+	const [isDraftLoaded, setIsDraftLoaded] = useState(false);
+	const [hasDraft, setHasDraft] = useState(false);
+	const [lastSaved, setLastSaved] = useState<Date | null>(null);
+	const draftSaveTimeoutRef = useRef<any>(null);
+
 	// Character limits
 	const TITLE_LIMIT = 50;
 	const CONTENTS_LIMIT = 1000;
 	const INTERPRETATION_LIMIT = 200;
 	const FEELINGS_LIMIT = 200;
+
+	const clearDraft = useCallback(async () => {
+		try {
+			await AsyncStorage.removeItem(DRAFT_KEY);
+			setHasDraft(false);
+			setLastSaved(null);
+		} catch (error) {
+			console.error('Error clearing draft:', error);
+		}
+	}, []);
+
+	const restoreDraft = useCallback((draft: any) => {
+		setTitle(draft.title || '');
+		setContents(draft.contents || '');
+		setDreamType(draft.dreamType || 'Standard');
+		setDate(draft.date ? new Date(draft.date) : new Date());
+		setInterpretation(draft.interpretation || '');
+		setMoodBefore(draft.moodBefore || '');
+		setMoodAfter(draft.moodAfter || '');
+		setFeelings(draft.feelings || '');
+		setSleepTime(draft.sleepTime ? new Date(draft.sleepTime) : null);
+		setWakeTime(draft.wakeTime ? new Date(draft.wakeTime) : null);
+		setTagList(draft.tagList || []);
+		setSleepQuality(draft.sleepQuality || 0);
+		setVisibility(draft.visibility || 'private');
+	}, []);
+
+	const loadDraft = useCallback(async () => {
+		try {
+			const draftData = await AsyncStorage.getItem(DRAFT_KEY);
+			if (draftData) {
+				const draft = JSON.parse(draftData);
+				// Auto-load the draft without asking
+				restoreDraft(draft);
+				setHasDraft(true);
+				setLastSaved(new Date(draft.savedAt));
+			}
+		} catch (error) {
+			console.error('Error loading draft:', error);
+		} finally {
+			setIsDraftLoaded(true);
+		}
+	}, [restoreDraft]);
+
+	// Auto-save draft using refs to avoid infinite loops
+	const autoSaveDraft = useCallback(() => {
+		// Clear existing timeout
+		if (draftSaveTimeoutRef.current) {
+			clearTimeout(draftSaveTimeoutRef.current);
+		}
+
+		// Only auto-save if draft is loaded and there's content
+		if (!isDraftLoaded) return;
+
+		const hasContent =
+			title.trim() ||
+			contents.trim() ||
+			interpretation.trim() ||
+			feelings.trim();
+		if (!hasContent) return;
+
+		// Set new timeout
+		draftSaveTimeoutRef.current = setTimeout(async () => {
+			try {
+				const draftData = {
+					title,
+					contents,
+					dreamType,
+					date: date.toISOString(),
+					interpretation,
+					moodBefore,
+					moodAfter,
+					feelings,
+					sleepTime: sleepTime?.toISOString(),
+					wakeTime: wakeTime?.toISOString(),
+					tagList,
+					sleepQuality,
+					visibility,
+					savedAt: new Date().toISOString(),
+				};
+
+				await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+				setHasDraft(true);
+				setLastSaved(new Date());
+			} catch (error) {
+				console.error('Error auto-saving draft:', error);
+			}
+		}, DRAFT_SAVE_DELAY);
+	}, [
+		isDraftLoaded,
+		title,
+		contents,
+		interpretation,
+		feelings,
+		dreamType,
+		date,
+		moodBefore,
+		moodAfter,
+		sleepTime,
+		wakeTime,
+		tagList,
+		sleepQuality,
+		visibility,
+	]);
+
+	// Trigger auto-save when content changes
+	useEffect(() => {
+		autoSaveDraft();
+		// Cleanup timeout on unmount
+		return () => {
+			if (draftSaveTimeoutRef.current) {
+				clearTimeout(draftSaveTimeoutRef.current);
+			}
+		};
+	}, [autoSaveDraft]);
+
+	// Load draft on component mount
+	useEffect(() => {
+		loadDraft();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Intentionally empty - only run once on mount
+
+	// Auto-save when screen loses focus (user navigates away)
+	useFocusEffect(
+		useCallback(() => {
+			return () => {
+				// This runs when screen loses focus
+				const hasContent =
+					title.trim() ||
+					contents.trim() ||
+					interpretation.trim() ||
+					feelings.trim();
+				if (hasContent && isDraftLoaded) {
+					const saveDraftOnBlur = async () => {
+						try {
+							const draftData = {
+								title,
+								contents,
+								dreamType,
+								date: date.toISOString(),
+								interpretation,
+								moodBefore,
+								moodAfter,
+								feelings,
+								sleepTime: sleepTime?.toISOString(),
+								wakeTime: wakeTime?.toISOString(),
+								tagList,
+								sleepQuality,
+								visibility,
+								savedAt: new Date().toISOString(),
+							};
+							await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+						} catch (error) {
+							console.error('Error saving draft on blur:', error);
+						}
+					};
+					saveDraftOnBlur();
+				}
+			};
+		}, [
+			title,
+			contents,
+			dreamType,
+			date,
+			interpretation,
+			moodBefore,
+			moodAfter,
+			feelings,
+			sleepTime,
+			wakeTime,
+			tagList,
+			sleepQuality,
+			visibility,
+			isDraftLoaded,
+		])
+	);
 
 	const handleTagInput = (text: string) => {
 		// Only add tag if user types a comma
@@ -88,7 +273,7 @@ export default function CreateJournalEntry() {
 				console.error('User not authenticated:', userError);
 				return;
 			}
-			const { data, error } = await supabase.from('journals').insert([
+			const { error } = await supabase.from('journals').insert([
 				{
 					user_id: userData.user.id,
 					title,
@@ -109,14 +294,37 @@ export default function CreateJournalEntry() {
 
 			if (error) {
 				console.error('Error inserting journal:', error);
+				Alert.alert('Error', 'Failed to save journal entry. Please try again.');
 				return;
 			}
 
-			navigation.goBack();
+			// Clear draft after successful save
+			await clearDraft();
+
+			Alert.alert('Success', 'Journal entry saved successfully!', [
+				{
+					text: 'OK',
+					onPress: () => navigation.goBack(),
+				},
+			]);
 		} catch (err) {
 			console.error('Unexpected error:', err);
+			Alert.alert('Error', 'An unexpected error occurred. Please try again.');
 		}
 	};
+
+	if (!isDraftLoaded) {
+		return (
+			<View
+				style={[
+					styles.container,
+					{ justifyContent: 'center', alignItems: 'center' },
+				]}
+			>
+				<Text style={styles.subHeading}>Loading...</Text>
+			</View>
+		);
+	}
 
 	return (
 		<KeyboardAvoidingView
@@ -128,6 +336,15 @@ export default function CreateJournalEntry() {
 				keyboardShouldPersistTaps="handled"
 			>
 				<View style={styles.container}>
+					{/* Draft Status Indicator */}
+					{hasDraft && lastSaved && (
+						<View style={styles.draftIndicator}>
+							<Text style={styles.draftText}>
+								Draft loaded from {lastSaved.toLocaleTimeString()}
+							</Text>
+						</View>
+					)}
+
 					<TextInput
 						style={[styles.input, styles.inputTitle]}
 						placeholder="Title"
@@ -450,18 +667,30 @@ const styles = StyleSheet.create({
 		padding: 20,
 		backgroundColor: Colors.background,
 	},
+	draftIndicator: {
+		backgroundColor: Colors.backgroundAlt,
+		padding: 8,
+		borderRadius: 6,
+		marginBottom: 16,
+		alignItems: 'center',
+	},
+	draftText: {
+		color: Colors.textAlt,
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+	},
 	input: {
 		backgroundColor: Colors.backgroundAlt,
 		color: Colors.textOther,
 		padding: 12,
 		borderRadius: 8,
 		marginBottom: 16,
-		fontFamily: Fonts.dogicaPixel,
-		fontSize: FontSizes.small,
+		fontSize: 16, // Use regular font for inputs
 	},
 	inputTitle: {
 		color: Colors.primary,
 		fontSize: FontSizes.large,
+		fontFamily: Fonts.dogicaPixel, // Keep pixel font for title
 	},
 	textArea: {
 		height: 100,
@@ -501,6 +730,10 @@ const styles = StyleSheet.create({
 		padding: 14,
 		borderRadius: 10,
 		marginBottom: 16,
+	},
+	draftButton: {
+		backgroundColor: Colors.backgroundAlt,
+		marginBottom: 20,
 	},
 	buttonText: {
 		color: Colors.text,
