@@ -145,7 +145,6 @@ function LayoutWithAuth() {
 							</Text>
 						</TouchableOpacity>
 					),
-					gestureEnabled: false,
 				}}
 			/>
 			<Stack.Screen
