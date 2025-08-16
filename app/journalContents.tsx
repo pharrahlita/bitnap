@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		fontFamily: Fonts.dogicaPixel,
-		fontSize: FontSizes.medium,
+		fontSize: FontSizes.small,
 		lineHeight: LineHeights.medium,
 		color: Colors.textOther,
 	},
