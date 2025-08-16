@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { Fonts, FontSizes, LineHeights } from '@/constants/Font';
 import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function JournalContents() {
 	const params = useLocalSearchParams();
@@ -13,109 +13,236 @@ export default function JournalContents() {
 			? params.tags
 			: [];
 
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleDateString('en-US', {
+			weekday: 'long',
+			year: 'numeric',
+			month: 'long',
+			day: 'numeric',
+		});
+	};
+
+	const formatTime = (timeString: string) => {
+		return new Date(timeString).toLocaleTimeString([], {
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	};
+
+	const renderStars = (rating: number) => {
+		const stars = [];
+		for (let i = 1; i <= 5; i++) {
+			stars.push(
+				<Text key={i} style={styles.star}>
+					{i <= rating ? '★' : '☆'}
+				</Text>
+			);
+		}
+		return <View style={styles.starsContainer}>{stars}</View>;
+	};
+
 	return (
-		<View style={styles.container}>
-			<Text style={styles.title}>{params.title || 'Untitled'}</Text>
+		<ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+			{/* Header Section */}
+			<View style={styles.header}>
+				<Text style={styles.title}>{params.title || 'Untitled Dream'}</Text>
+				<View style={styles.headerInfo}>
+					<Text style={styles.date}>
+						{params.date ? formatDate(params.date as string) : '—'}
+					</Text>
+					{params.visibility && (
+						<View style={styles.visibilityBadge}>
+							<Text style={styles.visibilityText}>
+								{params.visibility === 'buddies' ? '👥 Shared' : '🔒 Private'}
+							</Text>
+						</View>
+					)}
+				</View>
+				<View style={styles.dreamTypeBadge}>
+					<Text style={styles.dreamTypeText}>
+						{params.dream_type || 'Standard'} Dream
+					</Text>
+				</View>
+			</View>
 
-			<Text style={styles.label}>Date</Text>
-			<Text style={styles.content}>
-				{params.date
-					? new Date(params.date as string).toLocaleDateString()
-					: '—'}
-			</Text>
+			{/* Main Content Section */}
+			<View style={styles.section}>
+				<Text style={styles.sectionTitle}>Dream Content</Text>
+				<View style={styles.contentContainer}>
+					<Text style={styles.content}>
+						{params.content || 'No content available.'}
+					</Text>
+				</View>
+			</View>
 
-			<Text style={styles.label}>Dream Type</Text>
-			<Text style={styles.content}>{params.dream_type || '—'}</Text>
-
-			<Text style={styles.label}>Contents</Text>
-			<Text style={styles.content}>
-				{params.content || 'No content available.'}
-			</Text>
-
+			{/* Tags Section */}
 			{!!tags.length && (
-				<>
-					<Text style={styles.label}>Tags</Text>
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Tags</Text>
 					<View style={styles.tagsContainer}>
 						{tags.map((tag, index) => (
-							<Text key={index} style={styles.tag}>
-								{tag}
-							</Text>
+							<View key={index} style={styles.tagBadge}>
+								<Text style={styles.tagText}>{tag.trim()}</Text>
+							</View>
 						))}
 					</View>
-				</>
+				</View>
 			)}
 
-			{(params.sleep_time || params.wake_time) && (
-				<>
-					<Text style={styles.label}>Sleep/Wake</Text>
-					<Text style={styles.content}>
-						{params.sleep_time
-							? `Sleep: ${new Date(
-									params.sleep_time as string
-							  ).toLocaleTimeString([], {
-									hour: '2-digit',
-									minute: '2-digit',
-							  })}`
-							: ''}
-						{params.wake_time
-							? `  Wake: ${new Date(
-									params.wake_time as string
-							  ).toLocaleTimeString([], {
-									hour: '2-digit',
-									minute: '2-digit',
-							  })}`
-							: ''}
-					</Text>
-				</>
+			{/* Sleep Information Section */}
+			{(params.sleep_time ||
+				params.wake_time ||
+				(params.sleep_quality && Number(params.sleep_quality) > 0)) && (
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Sleep Information</Text>
+
+					{(params.sleep_time || params.wake_time) && (
+						<View style={styles.infoRow}>
+							<Text style={styles.label}>Sleep Schedule</Text>
+							<View style={styles.timeContainer}>
+								{params.sleep_time && (
+									<Text style={styles.timeText}>
+										🌙 Sleep: {formatTime(params.sleep_time as string)}
+									</Text>
+								)}
+								{params.wake_time && (
+									<Text style={styles.timeText}>
+										☀️ Wake: {formatTime(params.wake_time as string)}
+									</Text>
+								)}
+							</View>
+						</View>
+					)}
+
+					{params.sleep_quality && Number(params.sleep_quality) > 0 && (
+						<View style={styles.infoRow}>
+							<Text style={styles.label}>Sleep Quality</Text>
+							<View style={styles.qualityContainer}>
+								{renderStars(Number(params.sleep_quality))}
+								<Text style={styles.qualityText}>
+									{Number(params.sleep_quality)}/5
+								</Text>
+							</View>
+						</View>
+					)}
+				</View>
 			)}
 
+			{/* Mood Section */}
 			{(params.mood_before || params.mood_after) && (
-				<>
-					<Text style={styles.label}>Mood</Text>
-					<Text style={styles.content}>
-						{params.mood_before ? `Before: ${params.mood_before}` : ''}
-						{params.mood_after ? `  After: ${params.mood_after}` : ''}
-					</Text>
-				</>
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Mood</Text>
+					<View style={styles.moodContainer}>
+						{params.mood_before && (
+							<View style={styles.moodItem}>
+								<Text style={styles.moodLabel}>Before Sleep</Text>
+								<Text style={styles.moodEmoji}>{params.mood_before}</Text>
+							</View>
+						)}
+						{params.mood_after && (
+							<View style={styles.moodItem}>
+								<Text style={styles.moodLabel}>After Waking</Text>
+								<Text style={styles.moodEmoji}>{params.mood_after}</Text>
+							</View>
+						)}
+					</View>
+				</View>
 			)}
 
-			{params.sleep_quality && Number(params.sleep_quality) > 0 && (
-				<>
-					<Text style={styles.label}>Sleep Quality</Text>
-					<Text style={styles.content}>
-						{'★'.repeat(Number(params.sleep_quality))}
-						{'☆'.repeat(5 - Number(params.sleep_quality))}
-					</Text>
-				</>
-			)}
-
+			{/* Feelings Section */}
 			{params.feelings && (
-				<>
-					<Text style={styles.label}>Feelings Before Sleep</Text>
-					<Text style={styles.content}>{params.feelings}</Text>
-				</>
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Feelings Before Sleep</Text>
+					<View style={styles.contentContainer}>
+						<Text style={styles.content}>{params.feelings}</Text>
+					</View>
+				</View>
 			)}
 
+			{/* Interpretation Section */}
 			{params.interpretation && (
-				<>
-					<Text style={styles.label}>Interpretation</Text>
-					<Text style={styles.content}>{params.interpretation}</Text>
-				</>
+				<View style={styles.section}>
+					<Text style={styles.sectionTitle}>Dream Interpretation</Text>
+					<View style={styles.contentContainer}>
+						<Text style={styles.content}>{params.interpretation}</Text>
+					</View>
+				</View>
 			)}
-		</View>
+
+			{/* Bottom Padding */}
+			<View style={styles.bottomPadding} />
+		</ScrollView>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		padding: 16,
 		backgroundColor: Colors.background,
+	},
+	header: {
+		padding: 20,
+		borderBottomWidth: 1,
+		borderBottomColor: Colors.backgroundAlt,
 	},
 	title: {
 		fontFamily: Fonts.dogicaPixelBold,
 		fontSize: FontSizes.extraLarge,
 		color: Colors.primary,
+		marginBottom: 8,
+		lineHeight: LineHeights.extraLarge,
+	},
+	headerInfo: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: 12,
+	},
+	date: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textAlt,
+	},
+	visibilityBadge: {
+		backgroundColor: Colors.backgroundAlt,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		borderRadius: 12,
+	},
+	visibilityText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textOther,
+	},
+	dreamTypeBadge: {
+		backgroundColor: Colors.primary,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 16,
+		alignSelf: 'flex-start',
+	},
+	dreamTypeText: {
+		fontFamily: Fonts.dogicaPixelBold,
+		fontSize: FontSizes.small,
+		color: Colors.text,
+	},
+	section: {
+		paddingHorizontal: 20,
+		paddingVertical: 16,
+		borderBottomWidth: 1,
+		borderBottomColor: Colors.backgroundAlt,
+	},
+	sectionTitle: {
+		fontFamily: Fonts.dogicaPixelBold,
+		fontSize: FontSizes.medium,
+		color: Colors.primary,
+		marginBottom: 12,
+		letterSpacing: 1,
+	},
+	contentContainer: {
+		backgroundColor: Colors.backgroundAlt,
+		padding: 16,
+		borderRadius: 8,
 	},
 	content: {
 		fontFamily: Fonts.dogicaPixel,
@@ -124,23 +251,88 @@ const styles = StyleSheet.create({
 		color: Colors.textOther,
 	},
 	label: {
-		marginTop: 12,
 		fontFamily: Fonts.dogicaPixelBold,
-		fontSize: 14,
+		fontSize: FontSizes.small,
 		color: Colors.primary,
+		marginBottom: 8,
 		letterSpacing: 1,
 	},
 	tagsContainer: {
 		flexDirection: 'row',
-		justifyContent: 'flex-start',
-		marginTop: 8,
+		flexWrap: 'wrap',
+		gap: 8,
 	},
-	tag: {
-		borderRadius: 4,
-		paddingHorizontal: 8,
-		paddingVertical: 4,
-		backgroundColor: Colors.primary,
-		color: Colors.text,
-		marginRight: 8,
+	tagBadge: {
+		backgroundColor: Colors.backgroundAlt,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 16,
+		borderWidth: 1,
+		borderColor: Colors.primary,
+	},
+	tagText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.primary,
+	},
+	infoRow: {
+		marginBottom: 16,
+	},
+	timeContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		backgroundColor: Colors.backgroundAlt,
+		padding: 12,
+		borderRadius: 8,
+		marginTop: 4,
+	},
+	timeText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textOther,
+	},
+	qualityContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: Colors.backgroundAlt,
+		padding: 12,
+		borderRadius: 8,
+		marginTop: 4,
+	},
+	starsContainer: {
+		flexDirection: 'row',
+		marginRight: 12,
+	},
+	star: {
+		fontSize: FontSizes.medium,
+		color: Colors.primary,
+		marginRight: 2,
+	},
+	qualityText: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textOther,
+	},
+	moodContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-around',
+		backgroundColor: Colors.backgroundAlt,
+		padding: 16,
+		borderRadius: 8,
+	},
+	moodItem: {
+		alignItems: 'center',
+	},
+	moodLabel: {
+		fontFamily: Fonts.dogicaPixel,
+		fontSize: FontSizes.small,
+		color: Colors.textAlt,
+		marginBottom: 8,
+	},
+	moodEmoji: {
+		fontSize: 32,
+	},
+	bottomPadding: {
+		height: 20,
 	},
 });
