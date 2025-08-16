@@ -88,10 +88,16 @@ export default function CreateJournalEntry() {
 	const loadDraft = useCallback(async () => {
 		try {
 			const draftData = await AsyncStorage.getItem(DRAFT_KEY);
-			console.log('Loading draft data:', draftData ? 'Draft found' : 'No draft found');
+			console.log(
+				'Loading draft data:',
+				draftData ? 'Draft found' : 'No draft found'
+			);
 			if (draftData) {
 				const draft = JSON.parse(draftData);
-				console.log('Draft content:', { title: draft.title, hasContent: !!draft.content });
+				console.log('Draft content:', {
+					title: draft.title,
+					hasContent: !!draft.content,
+				});
 				// Auto-load the draft without asking
 				restoreDraft(draft);
 				setHasDraft(true);
@@ -190,7 +196,7 @@ export default function CreateJournalEntry() {
 				// This runs when screen loses focus
 				// Don't save if we're currently saving an entry or have no content
 				if (isSavingEntry) return;
-				
+
 				const hasContent =
 					title.trim() ||
 					contents.trim() ||
@@ -262,7 +268,7 @@ export default function CreateJournalEntry() {
 	const handleSave = async () => {
 		// Set flag to prevent auto-saving while we're saving
 		setIsSavingEntry(true);
-		
+
 		// Validation for mandatory fields
 		const missingFields = [];
 		if (!title.trim()) missingFields.push('Title');

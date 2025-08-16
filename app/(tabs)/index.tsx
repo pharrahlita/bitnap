@@ -7,8 +7,8 @@ import { RootStackParamList } from '@/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { format } from 'date-fns';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FlatList,
 	Image,
@@ -68,6 +68,13 @@ export default function HomeScreen() {
 	useEffect(() => {
 		fetchJournals();
 	}, []);
+
+	// Refresh journals when screen comes into focus (e.g., returning from create journal modal)
+	useFocusEffect(
+		useCallback(() => {
+			fetchJournals();
+		}, [])
+	);
 
 	const scrollToDate = (date: string) => {
 		const index = journals.findIndex(
